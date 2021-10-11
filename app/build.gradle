@@ -1,0 +1,38 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.jty.backtrack'
+
+
+android {
+    compileSdkVersion 26
+
+    defaultConfig {
+        applicationId "com.jty.backtrack"
+        minSdkVersion 16
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+}
+
+gradle.taskGraph.whenReady {
+    println "================================="
+    it.allTasks.each{ task ->
+        println "${task.name} : ${task.class.name - '_Decorated'}"
+    }
+}

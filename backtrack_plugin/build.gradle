@@ -1,0 +1,25 @@
+apply plugin: 'java-library'
+apply plugin: 'maven'
+
+
+group = 'com.jty.plugin'
+version = '1.0.0'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../repo'))
+        }
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation "com.android.tools.build:gradle:4.0.0"
+    implementation group: 'org.ow2.asm', name: 'asm', version: '7.0'
+    implementation group: 'org.ow2.asm', name: 'asm-commons', version: '7.0'
+}
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
