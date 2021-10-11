@@ -6,7 +6,7 @@ android {
     compileSdkVersion 26
 
     defaultConfig {
-        applicationId "com.jty.backtrack"
+        applicationId "com.jty.backtrack_demo"
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
@@ -27,12 +27,12 @@ android {
 }
 
 dependencies {
-
+    api project(path: ':backtrack')
 }
 
 gradle.taskGraph.whenReady {
     println "================================="
-    it.allTasks.each{ task ->
+    it.allTasks.each { task ->
         println "${task.name} : ${task.class.name - '_Decorated'}"
     }
 }

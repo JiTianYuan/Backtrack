@@ -23,6 +23,7 @@ public class BacktrackClassVisitor extends ClassVisitor {
         super.visit(version, access, name, signature, superName, interfaces);
         this.className = name;
         this.superName = superName;
+        isNeedTrace = isNeedTrace(name);
         //todo:白名单
         //this.isNeedTrace = MethodCollector.isNeedTrace(configuration, className, mappingCollector);
         if ((access & Opcodes.ACC_ABSTRACT) > 0 || (access & Opcodes.ACC_INTERFACE) > 0) {
@@ -31,14 +32,23 @@ public class BacktrackClassVisitor extends ClassVisitor {
 
     }
 
+    public static boolean isNeedTrace(String clsName) {
+        boolean isNeed = true;
+        clsName = clsName.replaceAll("/", ".");
+        if (clsName.startsWith("com.jty.backtrack.")) {
+            isNeed = false;
+        }
+        return isNeed;
+    }
+
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc,
                                      String signature, String[] exceptions) {
-        if (isABSClass) {
+        if (isABSClass || (!isNeedTrace)) {
             return super.visitMethod(access, name, desc, signature, exceptions);
         } else {
             MethodVisitor methodVisitor = cv.visitMethod(access, name, desc, signature, exceptions);
-            return new TraceMethodAdapter(api, methodVisitor, access, name, desc);
+            return new TraceMethodAdapter(api, methodVisitor, access,className, name, desc);
         }
     }
 
