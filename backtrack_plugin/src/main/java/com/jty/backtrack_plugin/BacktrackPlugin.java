@@ -30,7 +30,7 @@ public class BacktrackPlugin implements Plugin<Project> {
             System.out.println("Transform : " + transform.getName());
         }
 
-        android.registerTransform(new BacktrackTransform());
+        android.registerTransform(new BacktrackTransform(project));
 
         System.out.println("====================================");
         System.out.println("添加后的列表：");
