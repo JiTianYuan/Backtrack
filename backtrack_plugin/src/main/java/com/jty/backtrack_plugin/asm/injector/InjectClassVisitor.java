@@ -1,4 +1,7 @@
-package com.jty.backtrack_plugin.asm;
+package com.jty.backtrack_plugin.asm.injector;
+
+import com.jty.backtrack_plugin.asm.MethodItem;
+import com.jty.backtrack_plugin.asm.collector.MethodCollector;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -7,15 +10,19 @@ import org.objectweb.asm.Opcodes;
 /**
  * @author jty
  * @date 2021/9/14
+ * <p>
+ * 插桩用的ClassVisitor
  */
-public class BacktrackClassVisitor extends ClassVisitor {
+public class InjectClassVisitor extends ClassVisitor {
     private String className;
     private String superName;
     private boolean isABSClass = false;
     private boolean isNeedTrace;
+    private final MethodCollector mMethodCollector;
 
-    public BacktrackClassVisitor(ClassVisitor classVisitor) {
+    public InjectClassVisitor(ClassVisitor classVisitor, MethodCollector methodCollector) {
         super(Opcodes.ASM5, classVisitor);
+        mMethodCollector = methodCollector;
     }
 
     @Override
@@ -23,32 +30,22 @@ public class BacktrackClassVisitor extends ClassVisitor {
         super.visit(version, access, name, signature, superName, interfaces);
         this.className = name;
         this.superName = superName;
-        isNeedTrace = isNeedTrace(name);
-        //todo:白名单
-        //this.isNeedTrace = MethodCollector.isNeedTrace(configuration, className, mappingCollector);
         if ((access & Opcodes.ACC_ABSTRACT) > 0 || (access & Opcodes.ACC_INTERFACE) > 0) {
             this.isABSClass = true;
         }
-
-    }
-
-    public static boolean isNeedTrace(String clsName) {
-        boolean isNeed = true;
-        clsName = clsName.replaceAll("/", ".");
-        if (clsName.startsWith("com.jty.backtrack.")) {
-            isNeed = false;
-        }
-        return isNeed;
+        isNeedTrace = mMethodCollector.isNeedTraceClass(className) && !isABSClass;
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc,
                                      String signature, String[] exceptions) {
-        if (isABSClass || (!isNeedTrace)) {
+        MethodItem tempItem = MethodItem.create(0, access, className, name, desc);
+        MethodItem collectedMethod = mMethodCollector.getCollectedMethod(tempItem.getMethodName());
+        if (collectedMethod == null || (!isNeedTrace)) {
             return super.visitMethod(access, name, desc, signature, exceptions);
         } else {
             MethodVisitor methodVisitor = cv.visitMethod(access, name, desc, signature, exceptions);
-            return new TraceMethodAdapter(api, methodVisitor, access,className, name, desc);
+            return new InjectMethodVisitor(api, methodVisitor, access, className, name, desc, collectedMethod);
         }
     }
 

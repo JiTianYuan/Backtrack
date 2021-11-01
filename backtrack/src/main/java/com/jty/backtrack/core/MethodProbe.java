@@ -15,12 +15,16 @@ public class MethodProbe {
         Log.i(TAG, "method in = " + methodName);
     }
 
-    public static void i(int i) {
-        Log.i(TAG, "method in = " + i);
+    public static void i(int id) {
+        Log.i(TAG, "method in = " + id);
     }
 
 
     public static void o(String methodName) {
         Log.i(TAG, "method out = " + methodName);
+    }
+
+    public static void o(int id) {
+        Log.i(TAG, "method out = " + id);
     }
 }
