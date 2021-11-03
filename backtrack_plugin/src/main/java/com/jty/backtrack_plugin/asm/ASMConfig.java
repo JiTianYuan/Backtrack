@@ -5,7 +5,7 @@ package com.jty.backtrack_plugin.asm;
  * @date 2021/10/11
  */
 public class ASMConfig {
-    public static final String METHOD_TRACE_CLASS = "com/jty/backtrack/core/MethodProbe";
+    public static final String METHOD_TRACE_CLASS = "com/jty/backtrack/core/Backtrack";
     public static final String METHOD_TRACE_IN = "i";
     public static final String METHOD_TRACE_OUT = "o";
 
