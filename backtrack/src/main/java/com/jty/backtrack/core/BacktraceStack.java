@@ -7,6 +7,7 @@ import com.jty.backtrack.utils.StatusSpec;
 
 import java.util.Arrays;
 
+import static com.jty.backtrack.core.Backtrack.DEBUG;
 import static com.jty.backtrack.core.Backtrack.TAG;
 
 /**
@@ -15,11 +16,10 @@ import static com.jty.backtrack.core.Backtrack.TAG;
  * <p>
  * 回溯堆栈
  * 线程安全，只考虑主线程
- *
+ * <p>
  * 记录方法状态的数组：long类型，64位，第一位表示入栈还是出栈，后63位表示时间（精确到微秒）
  * 记录方法id的数组：int类型，保存方法id
  * 所以，一个方法入栈占用96位，12字节。
- *
  */
 class BacktraceStack implements FrameMonitor.FrameObserver {
     /**
@@ -80,15 +80,18 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
      * 保存当前堆栈
      */
     private void dump() {
-        System.out.println("dump");
+        if (mPoint == 0) {
+            return;
+        }
         long start = System.currentTimeMillis();
 
         long[] dumpStatusStack = Arrays.copyOf(mStatusStack, mPoint);
         int[] dumpIdStack = Arrays.copyOf(mIdStack, mPoint);
         //todo:保存到文件
-
+        if (DEBUG) {
+            Log.i(TAG, "Dump，堆栈容量 = " + mPoint + ",耗时 = " + (System.currentTimeMillis() - start));
+        }
         discard();
-        Log.i(TAG, "Dump，堆栈容量 = " + mPoint + ",耗时 = " + (System.currentTimeMillis() - start));
     }
 
     /**
@@ -103,14 +106,18 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
             //在当前数据规模下，一次扩容耗时10ms+，要尽量避免扩容
             mStatusStack = Arrays.copyOf(mStatusStack, mStackSize);
             mIdStack = Arrays.copyOf(mIdStack, mStackSize);
-
-            Log.i(TAG, "扩容，新容量 = " + mStackSize + ",扩容耗时 = " + (System.currentTimeMillis() - start));
+            if (DEBUG) {
+                Log.i(TAG, "扩容，新容量 = " + mStackSize + ",扩容耗时 = " + (System.currentTimeMillis() - start));
+            }
         }
     }
 
     @Override
     public void onFrameFinish(long frameIntervalNanos, long frameDurationNanos) {
         if (frameDurationNanos >= mFrameTimeThreshold) {
+            if (DEBUG) {
+                Log.i(TAG, "onFrameFinish，need dump，frameDurationNanos = " + frameDurationNanos);
+            }
             dump();
         } else {
             discard();

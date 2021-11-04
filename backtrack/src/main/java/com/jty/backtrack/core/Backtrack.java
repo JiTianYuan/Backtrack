@@ -53,15 +53,15 @@ public class Backtrack {
      * @param id 方法id
      */
     public static void i(int id) {
-        if (DEBUG) {
-            Log.i(TAG, "method in = " + id);
-        }
         if (mInstance == null || mInstance.mBacktraceStack == null) {
             return;
         }
         if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
             //主线程判断，只有主线程插桩
             return;
+        }
+        if (DEBUG) {
+            Log.i(TAG, "method in = " + id);
         }
         mInstance.mBacktraceStack.record(id,true);
     }
@@ -72,15 +72,15 @@ public class Backtrack {
      * @param id 方法id
      */
     public static void o(int id) {
-        if (DEBUG) {
-            Log.i(TAG, "method out = " + id);
-        }
         if (mInstance == null || mInstance.mBacktraceStack == null) {
             return;
         }
         if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
             //主线程判断，只有主线程插桩
             return;
+        }
+        if (DEBUG) {
+            Log.i(TAG, "method out = " + id);
         }
         mInstance.mBacktraceStack.record(id,false);
     }

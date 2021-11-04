@@ -8,6 +8,7 @@ import android.util.Log;
  */
 final class FrameInfo {
     private static final String TAG = "FrameInfo";
+    private static final boolean DEBUG = false;
 
     // 预期的vsync时间
     private static final int INTENDED_VSYNC = 0;
@@ -32,6 +33,9 @@ final class FrameInfo {
     void markDoFrameStart(long intendedVsync) {
         mFrameInfo[INTENDED_VSYNC] = intendedVsync;
         mFrameInfo[DO_FRAME_START] = System.nanoTime();
+        if (DEBUG) {
+            Log.i(TAG, "markDoFrameStart:" + mFrameInfo[DO_FRAME_START]);
+        }
     }
 
     void markInputStart() {
@@ -48,6 +52,9 @@ final class FrameInfo {
 
     void markDoFrameEnd() {
         mFrameInfo[DO_FRAME_END] = System.nanoTime();
+        if (DEBUG) {
+            Log.i(TAG, "markDoFrameEnd:" + mFrameInfo[DO_FRAME_END]);
+        }
     }
 
     void dump() {
@@ -61,7 +68,8 @@ final class FrameInfo {
         Log.i(TAG, log);
     }
 
-    long getFrameDurationNanos(){
+    long getFrameDurationNanos() {
+        //结束时间 - 预期的起始帧时间 这样可以包含handler调度的时间，可以发现handler调度造成的卡顿
         return mFrameInfo[DO_FRAME_END] - mFrameInfo[INTENDED_VSYNC];
     }
 
