@@ -12,13 +12,14 @@ import com.jty.backtrack.frame_monitor.FrameMonitor;
  * api接口
  */
 public class Backtrack {
-    private static final String TAG = "Backtrack";
-    private static final boolean DEBUG = true;
+    public static final String TAG = "Backtrack";
+    public static final boolean DEBUG = true;
 
     private static Backtrack mInstance;
 
     private final Config mConfig;
     private final BacktraceStack mBacktraceStack;
+    private final long mFrameIntervalNanos;//系统一帧的间隔
 
     public synchronized static void init(Config config) {
         if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
@@ -39,8 +40,10 @@ public class Backtrack {
 
     private Backtrack(Config config) {
         mConfig = config;
+        mFrameIntervalNanos = FrameMonitor.getInstance().getFrameIntervalNanos();
         //初始化回溯堆栈
-        mBacktraceStack = new BacktraceStack();
+        long frameTimeThreshold = mConfig.getJankFrameThreshold() * mFrameIntervalNanos;
+        mBacktraceStack = new BacktraceStack(frameTimeThreshold);
         FrameMonitor.getInstance().addFrameObserver(mBacktraceStack);
     }
 

@@ -188,6 +188,10 @@ public class FrameMonitor {
         mFrameObservers.remove(observer);
     }
 
+    public long getFrameIntervalNanos(){
+        return mFrameIntervalNanos;
+    }
+
 
     public interface FrameObserver {
         /**
