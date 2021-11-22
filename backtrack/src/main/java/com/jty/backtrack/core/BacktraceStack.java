@@ -7,7 +7,6 @@ import com.jty.backtrack.utils.StatusSpec;
 
 import java.util.Arrays;
 
-import static com.jty.backtrack.core.Backtrack.DEBUG;
 import static com.jty.backtrack.core.Backtrack.TAG;
 
 /**
@@ -32,6 +31,8 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
      */
     private static final float EXPAND_FACTOR = 1.5f;
 
+    private final BacktrackContext mContext;
+
     /**
      * 记录方法状态
      * 第一位1表示进栈，0表示出栈。剩下63位表示时间，微秒单位
@@ -54,7 +55,8 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
      */
     private long mFrameTimeThreshold;
 
-    public BacktraceStack(long frameTimeThreshold) {
+    public BacktraceStack(BacktrackContext context, long frameTimeThreshold) {
+        mContext = context;
         mFrameTimeThreshold = frameTimeThreshold;
         mStackSize = STACK_SIZE;
         mStatusStack = new long[mStackSize];
@@ -79,7 +81,7 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
     /**
      * 保存当前堆栈
      */
-    private void dump() {
+    private void dump(long frameDurationNanos) {
         if (mPoint == 0) {
             return;
         }
@@ -87,8 +89,9 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
 
         long[] dumpStatusStack = Arrays.copyOf(mStatusStack, mPoint);
         int[] dumpIdStack = Arrays.copyOf(mIdStack, mPoint);
-        //todo:保存到文件
-        if (DEBUG) {
+        //保存到文件
+        mContext.getOutputProcessor().saveBacktraceStack(frameDurationNanos, dumpStatusStack, dumpIdStack);
+        if (mContext.isDebug()) {
             Log.i(TAG, "Dump，堆栈容量 = " + mPoint + ",耗时 = " + (System.currentTimeMillis() - start));
         }
         discard();
@@ -106,7 +109,7 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
             //在当前数据规模下，一次扩容耗时10ms+，要尽量避免扩容
             mStatusStack = Arrays.copyOf(mStatusStack, mStackSize);
             mIdStack = Arrays.copyOf(mIdStack, mStackSize);
-            if (DEBUG) {
+            if (mContext.isDebug()) {
                 Log.i(TAG, "扩容，新容量 = " + mStackSize + ",扩容耗时 = " + (System.currentTimeMillis() - start));
             }
         }
@@ -115,10 +118,10 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
     @Override
     public void onFrameFinish(long frameIntervalNanos, long frameDurationNanos) {
         if (frameDurationNanos >= mFrameTimeThreshold) {
-            if (DEBUG) {
+            if (mContext.isDebug()) {
                 Log.i(TAG, "onFrameFinish，need dump，frameDurationNanos = " + frameDurationNanos);
             }
-            dump();
+            dump(frameDurationNanos);
         } else {
             discard();
         }
