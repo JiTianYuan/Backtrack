@@ -2,3 +2,4 @@ rootProject.name = "Backtrack"
 include ':app'
 include ':backtrack_plugin'
 include ':backtrack'
+include ':data_parser'

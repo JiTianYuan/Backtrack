@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+// 定义项目使用的编码
+compileJava.options.encoding = 'UTF-8'
+
+
+jar {
+    //详细信息参考 https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html
+
+    archivesBaseName = 'BacktrackDataParser'//基本的文件名
+    archiveVersion = '1.0.0' //版本
+    manifest { //配置jar文件的manifest
+        attributes(
+                "Manifest-Version": 1.0,
+                'Main-Class': 'com.jty.backtrack.data_paser.Main' //指定main方法所在的文件
+        )
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+
+
