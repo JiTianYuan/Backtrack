@@ -58,6 +58,8 @@ public class MappingPrinter {
             FileOutputStream fileOutputStream = new FileOutputStream(methodMappingFile, false);
             Writer w = new OutputStreamWriter(fileOutputStream, "UTF-8");
             pw = new PrintWriter(w);
+            //mapping文件头
+            pw.println("#Backtrack Mapping");
             for (MethodItem traceMethod : methodList) {
                 pw.println(traceMethod.id + "-->" + traceMethod.getMethodName());
             }

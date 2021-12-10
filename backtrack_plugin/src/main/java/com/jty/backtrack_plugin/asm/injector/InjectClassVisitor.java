@@ -21,7 +21,7 @@ public class InjectClassVisitor extends ClassVisitor {
     private final MethodCollector mMethodCollector;
 
     public InjectClassVisitor(ClassVisitor classVisitor, MethodCollector methodCollector) {
-        super(Opcodes.ASM5, classVisitor);
+        super(Opcodes.ASM7, classVisitor);
         mMethodCollector = methodCollector;
     }
 

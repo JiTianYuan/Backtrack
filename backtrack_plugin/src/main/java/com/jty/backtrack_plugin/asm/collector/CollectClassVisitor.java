@@ -18,8 +18,8 @@ class CollectClassVisitor extends ClassVisitor {
 
     private final MethodCollector mMethodCollector;
 
-    public CollectClassVisitor(int i, ClassVisitor classVisitor, MethodCollector collector) {
-        super(i, classVisitor);
+    public CollectClassVisitor(ClassVisitor classVisitor, MethodCollector collector) {
+        super(Opcodes.ASM7, classVisitor);
         mMethodCollector = collector;
     }
 
@@ -39,7 +39,7 @@ class CollectClassVisitor extends ClassVisitor {
         if (!isNeedTrace) {
             return super.visitMethod(access, name, desc, signature, exceptions);
         } else {
-            return new CollectMethodVisitor(className, access, name, desc, signature, exceptions,mMethodCollector);
+            return new CollectMethodVisitor(className, access, name, desc, signature, exceptions, mMethodCollector);
         }
     }
 

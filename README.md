@@ -45,3 +45,14 @@ idea2：数据存储时，直接读取mapping，存储真实的类名信息
 
 
 
+## 接入
+
+引入aar
+
+代码混淆配置：
+-keep class com.jty.backtrack.core.Backtrack{*;}
+
+
+初始化：
+
+

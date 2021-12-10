@@ -12,7 +12,7 @@ class OutputTemplate {
 
     // Backtrack:pkgName=$pkg_name$;processId=$process_id$;threadId=$thread_id$;
     static String buildHead(String pkgName, int processId, long threadId) {
-        return "Backtrack:pkgName=" + pkgName + ";processId=" + processId + ";threadId=" + threadId + ";";
+        return "#Backtrack:pkgName=" + pkgName + "&processId=" + processId + "&threadId=" + threadId;
     }
 
     // $方法id$,$时间(微秒)$,$进栈出栈（B或者E）$

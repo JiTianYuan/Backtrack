@@ -160,7 +160,7 @@ public class MethodCollector {
     private void handleClass(InputStream inputStream) throws IOException {
         ClassReader classReader = new ClassReader(inputStream);
         ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
-        ClassVisitor cv = new CollectClassVisitor(Opcodes.ASM5, classWriter, this);
+        ClassVisitor cv = new CollectClassVisitor(classWriter, this);
         classReader.accept(cv, 0);
     }
 

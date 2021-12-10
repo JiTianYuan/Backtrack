@@ -16,7 +16,7 @@ uploadArchives {
 
 dependencies {
     implementation gradleApi()
-    implementation "com.android.tools.build:gradle:4.0.0"
+    implementation "com.android.tools.build:gradle:4.0.1"
     implementation group: 'org.ow2.asm', name: 'asm', version: '7.0'
     implementation group: 'org.ow2.asm', name: 'asm-commons', version: '7.0'
 }
