@@ -1,5 +1,7 @@
 package com.jty.backtrack.data_parser;
 
+import com.jty.backtrack.data_parser.worker.ParserWorker;
+
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
@@ -9,7 +11,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
 import javafx.stage.DirectoryChooser;

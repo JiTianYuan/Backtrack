@@ -1,5 +1,6 @@
-package com.jty.backtrack.data_parser;
+package com.jty.backtrack.data_parser.worker;
 
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -9,7 +10,7 @@ import javafx.application.Platform;
  * @author jty
  * @date 2021/11/30
  */
-class ParserWorker {
+public class ParserWorker {
 
     private final ExecutorService mExecutor;
 
@@ -23,6 +24,7 @@ class ParserWorker {
             @Override
             public void run() {
                 Result result = parse(mappingDir, traceDir, outDir);
+                //切换到UI线程更新UI
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
@@ -40,16 +42,15 @@ class ParserWorker {
 
 
     private Result parse(String mappingDir, String traceDir, String outDir) {
-        Result result = new Result();
+        //加载mapping文件
         MappingReader mappingReader = new MappingReader();
-        mappingReader.loadMapping(mappingDir);
+        HashMap<Integer, String> mapping = mappingReader.loadMapping(mappingDir);
+
+        //解析trace文件
+        TraceConverter traceConverter = new TraceConverter(mapping);
+        Result result = traceConverter.convert2Trace(traceDir, outDir);
 
         return result;
-    }
-
-    private class Result {
-        boolean success;
-        String msg = "unknown";
     }
 
 
