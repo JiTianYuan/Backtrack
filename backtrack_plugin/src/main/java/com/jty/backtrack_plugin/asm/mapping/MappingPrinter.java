@@ -88,7 +88,7 @@ public class MappingPrinter {
             Writer w = new OutputStreamWriter(fileOutputStream, "UTF-8");
             pw = new PrintWriter(w);
             for (MethodItem traceMethod : methodList) {
-                pw.println(traceMethod.toString());
+                pw.println(traceMethod.getMethodName());
             }
         } catch (Exception e) {
             Log.e(TAG, "write method map Exception:" + e.getMessage());

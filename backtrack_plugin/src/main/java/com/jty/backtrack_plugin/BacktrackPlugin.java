@@ -16,13 +16,10 @@ public class BacktrackPlugin implements Plugin<Project> {
         System.out.println("BacktrackPlugin apply");
         BacktrackExtension extension = project.getExtensions().create("backtrack", BacktrackExtension.class);
 
-        project.afterEvaluate(project1 -> {
-            //todo:读取 extension 配置
-        });
-        attachTransform(project);
+        attachTransform(project, extension);
     }
 
-    private void attachTransform(Project project) {
+    private void attachTransform(Project project, BacktrackExtension extension) {
         AppExtension android = project.getExtensions().getByType(AppExtension.class);
 
         System.out.println("添加 Transform : 当前的列表：");
@@ -30,7 +27,7 @@ public class BacktrackPlugin implements Plugin<Project> {
             System.out.println("Transform : " + transform.getName());
         }
 
-        android.registerTransform(new BacktrackTransform(project));
+        android.registerTransform(new BacktrackTransform(project, extension));
 
         System.out.println("====================================");
         System.out.println("添加后的列表：");

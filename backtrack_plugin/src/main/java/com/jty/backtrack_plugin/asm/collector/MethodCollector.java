@@ -3,6 +3,7 @@ package com.jty.backtrack_plugin.asm.collector;
 import com.android.build.api.transform.DirectoryInput;
 import com.android.build.api.transform.JarInput;
 import com.android.build.api.transform.TransformInput;
+import com.jty.backtrack_plugin.BacktrackExtension;
 import com.jty.backtrack_plugin.asm.ASMConfig;
 import com.jty.backtrack_plugin.asm.MethodItem;
 import com.jty.backtrack_plugin.asm.Utils;
@@ -31,10 +32,34 @@ import java.util.zip.ZipEntry;
  * 第一次遍历，用于收集需要插桩的方法
  */
 public class MethodCollector {
+    private final BacktrackExtension extension;
     private final ConcurrentHashMap<String, MethodItem> mCollectedMethodMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, MethodItem> mCollectedIgnoreMethodMap = new ConcurrentHashMap<>();
 
-    private final AtomicInteger methodId = new AtomicInteger(0);
+    private final AtomicInteger methodId;
+
+    public MethodCollector(BacktrackExtension extension) {
+        this.extension = extension;
+
+        int methodIdStart = getStartMethodId();
+        methodId = new AtomicInteger(methodIdStart);
+        System.out.println("[Backtrack] methodId start = " + methodIdStart);
+    }
+
+    private int getStartMethodId() {
+        int start = 0;
+        String str = extension.methodIdStart.trim();
+        if (!str.startsWith("0x")) {
+            throw new IllegalArgumentException("[backtrack extension] methodIdStart must start with 0x !!");
+        } else if (str.length() != 4) {
+            throw new IllegalArgumentException("[backtrack extension] methodIdStart must be Two hexadecimal digits !!!");
+        } else {
+            //16进制转10进制
+            str = str + "000000";
+            start = Integer.parseInt(str.substring(2), 16);
+        }
+        return start;
+    }
 
     /**
      * 仅仅是收集，不会对Inputs修改和输出
@@ -53,7 +78,7 @@ public class MethodCollector {
         }
     }
 
-    protected int generateId(){
+    protected int generateId() {
         return methodId.incrementAndGet();
     }
 
@@ -64,7 +89,7 @@ public class MethodCollector {
         mCollectedMethodMap.put(methodItem.getMethodName(), methodItem);
     }
 
-    protected boolean hasCollectedMethod(String methodName){
+    protected boolean hasCollectedMethod(String methodName) {
         return mCollectedMethodMap.containsKey(methodName);
     }
 

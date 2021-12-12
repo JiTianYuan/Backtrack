@@ -25,9 +25,11 @@ import java.util.Set;
  */
 class BacktrackTransform extends Transform {
     private Project project;
+    private BacktrackExtension extension;
 
-    public BacktrackTransform(Project project) {
+    public BacktrackTransform(Project project, BacktrackExtension extension) {
         this.project = project;
+        this.extension = extension;
     }
 
     @Override
@@ -81,7 +83,7 @@ class BacktrackTransform extends Transform {
             outputProvider.deleteAll();
         }
         //1、收集需要插桩的类
-        MethodCollector collector = new MethodCollector();
+        MethodCollector collector = new MethodCollector(extension);
         collector.collect(inputs);
 
         //2、插桩
