@@ -19,7 +19,7 @@ jar {
     manifest { //配置jar文件的manifest
         attributes(
                 "Manifest-Version": 1.0,
-                'Main-Class': 'com.jty.backtrack.data_paser.Main' //指定main方法所在的文件
+                'Main-Class': 'com.jty.backtrack.data_parser.Main' //指定main方法所在的文件
         )
     }
     from {
