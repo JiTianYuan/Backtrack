@@ -21,7 +21,7 @@ import java.io.File;
  */
 public class Backtrack implements BacktrackContext {
     public static final String TAG = "Backtrack";
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
 
     private static Backtrack mInstance;
 
@@ -106,6 +106,21 @@ public class Backtrack implements BacktrackContext {
         }
         mInstance.mBacktraceStack.record(id, false);
     }
+
+    public static void c(int id) {
+        if (mInstance == null || mInstance.mBacktraceStack == null) {
+            return;
+        }
+        if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
+            //主线程判断，只有主线程插桩
+            return;
+        }
+        if (DEBUG) {
+            Log.i(TAG, "inCatch = " + id);
+        }
+        //todo
+    }
+
 
 
     @Override

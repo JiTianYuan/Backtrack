@@ -4,9 +4,12 @@ import com.jty.backtrack_plugin.asm.ASMConfig;
 import com.jty.backtrack_plugin.asm.MethodItem;
 import com.jty.backtrack_plugin.asm.collector.MethodCollector;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
+
+import java.util.HashSet;
 
 /**
  * @author jty
@@ -17,6 +20,7 @@ import org.objectweb.asm.commons.AdviceAdapter;
 class InjectMethodVisitor extends AdviceAdapter {
     private String className;
     private final MethodItem mMethodItem;
+    private HashSet<Label> mTryCatchLabels = new HashSet<>();
 
     /**
      * Constructs a new {@link AdviceAdapter}.
@@ -37,6 +41,7 @@ class InjectMethodVisitor extends AdviceAdapter {
 
     @Override
     protected void onMethodEnter() {
+        //方法入口插桩
         if (mMethodItem != null) {
             System.out.println("onMethodEnter --->>> " + className + " $ " + getName());
             mv.visitLdcInsn(mMethodItem.id);
@@ -48,6 +53,7 @@ class InjectMethodVisitor extends AdviceAdapter {
 
     @Override
     protected void onMethodExit(int opcode) {
+        //方法出口插桩
         if (mMethodItem != null) {
             System.out.println("onMethodExit --->>> " + className + " $ " + getName());
             mv.visitLdcInsn(mMethodItem.id);
@@ -55,6 +61,21 @@ class InjectMethodVisitor extends AdviceAdapter {
             //mv.visitLdcInsn(getName());
             //mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_TRACE_OUT, "(Ljava/lang/String;)V", false);
         }
+    }
+
+    @Override
+    public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+        mTryCatchLabels.add(handler);
+        super.visitTryCatchBlock(start, end, handler, type);
+    }
+
+    @Override
+    public void visitLabel(Label label) {
+        super.visitLabel(label);
+        if (mTryCatchLabels.contains(label)){
+            //try-catch代码块插桩
+            mv.visitLdcInsn(mMethodItem.id);
+            mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_TRACE_CATCH, "(I)V", false);}
     }
 
 }

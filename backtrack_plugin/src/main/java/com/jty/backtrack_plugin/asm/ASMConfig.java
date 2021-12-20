@@ -8,6 +8,7 @@ public class ASMConfig {
     public static final String METHOD_TRACE_CLASS = "com/jty/backtrack/core/Backtrack";
     public static final String METHOD_TRACE_IN = "i";
     public static final String METHOD_TRACE_OUT = "o";
+    public static final String METHOD_TRACE_CATCH = "c";
 
     public static final String mappingDir = "";
 
