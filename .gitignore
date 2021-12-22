@@ -1,3 +1,4 @@
 .gradle/
 .idea/
 /repo/
+BacktrackDataParser.properties
