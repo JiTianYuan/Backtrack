@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,6 +38,7 @@ class TraceConverter {
             "#          | |        |      |   ||||       |         |";
 
     private HashMap<Integer, String> mapping;
+    private DecimalFormat df = new DecimalFormat("#0.000000");
 
     public TraceConverter(HashMap<Integer, String> mapping) {
         this.mapping = mapping;
@@ -56,7 +58,7 @@ class TraceConverter {
         }
         File traceDirPath = new File(traceDir);
         List<File> files = Util.eachFile(traceDirPath);
-        if (files.size() == 0){
+        if (files.size() == 0) {
             result.success = false;
             result.msg = "没有发现 backtrace 文件";
             return result;
@@ -124,20 +126,29 @@ class TraceConverter {
                 }
                 //转换数据信息
                 //输入格式：methodId,timeMicroseconds,<B或者E>
-                //输出格式：<包名-线程id>  ( <线程id>) [000] .... <时间>: tracing_mark_write: <B或者E>|<进程ID>|<TAG>
-                DecimalFormat df = new DecimalFormat("#0.000000");
+                List<TraceRecordItem> data = new ArrayList<>();
+                //读取数据
                 while ((lineTxt = reader.readLine()) != null) {
+                    TraceRecordItem item = new TraceRecordItem();
                     //输入格式：methodId,timeMicroseconds,<B或者E>
                     String[] split = lineTxt.split(",");
-                    int methodId = Integer.parseInt(split[0]);
-                    long timeMicroseconds = Long.parseLong(split[1]);
-                    String status = split[2];
+                    item.methodId = Integer.parseInt(split[0]);
+                    item.timeMicroseconds = Long.parseLong(split[1]);
+                    item.status = split[2];
+                    data.add(item);
+                }
 
-                    double timeSecond = timeMicroseconds / 1000000d;
-                    String methodName = getMethodName(methodId);
+                //处理数据
+                TraceCorrector traceCorrector = new TraceCorrector();
+                traceCorrector.correct(data);
+
+                //输出数据
+                //输出格式：<包名-线程id>  ( <线程id>) [000] .... <时间>: tracing_mark_write: <B或者E>|<进程ID>|<TAG>
+                for (TraceRecordItem recordItem : data) {
+                    String methodName = getMethodName(recordItem.methodId);
+                    double timeSecond = recordItem.timeMicroseconds / 1000000d;
                     //输出格式：<包名-线程id>  ( <线程id>) [000] .... <时间>: tracing_mark_write: <B或者E>|<进程ID>|<TAG>
-
-                    String traceLine = pkgName + "-" + threadId + "  ( " + threadId + ") [000] .... " +  df.format(timeSecond) + ": tracing_mark_write: " + status + "|" + processId + "|" + methodName;
+                    String traceLine = pkgName + "-" + threadId + "  ( " + threadId + ") [000] .... " + df.format(timeSecond) + ": tracing_mark_write: " + recordItem.status + "|" + processId + "|" + methodName;
                     writer.println(traceLine);
                 }
                 result.success = true;

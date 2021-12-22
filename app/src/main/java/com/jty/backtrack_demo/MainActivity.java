@@ -24,8 +24,9 @@ public class MainActivity extends Activity {
             for (int i = 0; i < 10; i++) {
                 a++;
             }
-            A();
+            C();
         } catch (Exception e){
+            e.printStackTrace();
             Log.i("Backtrack","33333333");
         }
 
@@ -44,6 +45,10 @@ public class MainActivity extends Activity {
         Log.i("Backtrack",String.valueOf(a));
         Activity activity = null;
         activity.onContentChanged();
+    }
+
+    private void C(){
+        int ret = 2 / 0;
     }
 
 }

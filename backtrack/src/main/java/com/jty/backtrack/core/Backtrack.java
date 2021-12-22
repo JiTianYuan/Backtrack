@@ -107,7 +107,7 @@ public class Backtrack implements BacktrackContext {
         mInstance.mBacktraceStack.record(id, false);
     }
 
-    public static void c(int id) {
+    public static void t(int id) {
         if (mInstance == null || mInstance.mBacktraceStack == null) {
             return;
         }
