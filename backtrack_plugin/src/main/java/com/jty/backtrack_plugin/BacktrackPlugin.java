@@ -22,17 +22,17 @@ public class BacktrackPlugin implements Plugin<Project> {
     private void attachTransform(Project project, BacktrackExtension extension) {
         AppExtension android = project.getExtensions().getByType(AppExtension.class);
 
-        System.out.println("添加 Transform : 当前的列表：");
-        for (Transform transform : android.getTransforms()) {
-            System.out.println("Transform : " + transform.getName());
-        }
+//        System.out.println("添加 Transform : 当前的列表：");
+//        for (Transform transform : android.getTransforms()) {
+//            System.out.println("Transform : " + transform.getName());
+//        }
 
         android.registerTransform(new BacktrackTransform(project, extension));
 
-        System.out.println("====================================");
-        System.out.println("添加后的列表：");
-        for (Transform transform : android.getTransforms()) {
-            System.out.println("Transform : name = " + transform.getName() + "，class = " + transform.getClass());
-        }
+//        System.out.println("====================================");
+//        System.out.println("添加后的列表：");
+//        for (Transform transform : android.getTransforms()) {
+//            System.out.println("Transform : name = " + transform.getName() + "，class = " + transform.getClass());
+//        }
     }
 }

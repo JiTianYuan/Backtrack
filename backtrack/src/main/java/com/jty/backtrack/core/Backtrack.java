@@ -22,7 +22,7 @@ import java.io.File;
  */
 public class Backtrack implements BacktrackContext {
     public static final String TAG = "Backtrack";
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     private static Backtrack mInstance;
 

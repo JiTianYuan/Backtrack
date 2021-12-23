@@ -83,7 +83,11 @@ class BacktrackTransform extends Transform {
             outputProvider.deleteAll();
         }
         //1、收集需要插桩的类
-        MethodCollector collector = new MethodCollector(extension);
+        File whiteListFile = null;
+        if (extension.whiteListFile != null && extension.whiteListFile.length() > 0){
+            whiteListFile = project.file(extension.whiteListFile);
+        }
+        MethodCollector collector = new MethodCollector(extension,whiteListFile);
         collector.collect(inputs);
 
         //2、插桩

@@ -43,7 +43,7 @@ class InjectMethodVisitor extends AdviceAdapter {
     protected void onMethodEnter() {
         //方法入口插桩
         if (mMethodItem != null) {
-            System.out.println("onMethodEnter --->>> " + className + " $ " + getName());
+            //System.out.println("onMethodEnter --->>> " + className + " $ " + getName());
             mv.visitLdcInsn(mMethodItem.id);
             mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_TRACE_IN, "(I)V", false);
             //mv.visitLdcInsn(getName());
@@ -55,7 +55,7 @@ class InjectMethodVisitor extends AdviceAdapter {
     protected void onMethodExit(int opcode) {
         //方法出口插桩
         if (mMethodItem != null) {
-            System.out.println("onMethodExit --->>> " + className + " $ " + getName() + ", opcode = " + opcode);
+            //System.out.println("onMethodExit --->>> " + className + " $ " + getName() + ", opcode = " + opcode);
             mv.visitLdcInsn(mMethodItem.id);
             mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_TRACE_OUT, "(I)V", false);
             //mv.visitLdcInsn(getName());

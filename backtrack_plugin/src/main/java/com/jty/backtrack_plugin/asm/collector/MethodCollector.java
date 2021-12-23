@@ -17,8 +17,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,14 +38,55 @@ public class MethodCollector {
     private final ConcurrentHashMap<String, MethodItem> mCollectedMethodMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, MethodItem> mCollectedIgnoreMethodMap = new ConcurrentHashMap<>();
 
+    private final HashSet<String> mWhitePackages = new HashSet<>();
+    private final HashSet<String> mWhiteClasses = new HashSet<>();
+
     private final AtomicInteger methodId;
 
-    public MethodCollector(BacktrackExtension extension) {
+    public MethodCollector(BacktrackExtension extension, File whiteListFile) {
         this.extension = extension;
 
+        parseWhiteList(whiteListFile);
         int methodIdStart = getStartMethodId();
         methodId = new AtomicInteger(methodIdStart);
         System.out.println("[Backtrack] methodId start = " + methodIdStart);
+    }
+
+    //解析白名单
+    private void parseWhiteList(File whiteListFile) {
+        mWhitePackages.addAll(Arrays.asList(ASMConfig.DEFAULT_WHITE_PACKAGE));
+
+        if (whiteListFile != null) {
+            System.out.println("解析白名单：" + whiteListFile);
+            String str = Utils.readFileAsString(whiteListFile);
+            String[] whiteListArray = str.trim().replace(".", "/").replace("\r", "").split("\n");
+            if (whiteListArray != null) {
+                for (String item : whiteListArray) {
+                    if (item.length() == 0) {
+                        continue;
+                    }
+                    if (item.startsWith("#")) {
+                        continue;
+                    }
+                    if (item.startsWith("[")) {
+                        continue;
+                    }
+                    if (item.startsWith("-keepclass ")) {
+                        item = item.replace("-keepclass ", "");
+                        mWhiteClasses.add(item);
+                        System.out.println("class白名单：" + item);
+                    } else if (item.startsWith("-keeppackage ")) {
+                        item = item.replace("-keeppackage ", "");
+                        item = item.replaceAll("\\*", "");
+                        mWhitePackages.add(item);
+                        System.out.println("package白名单：" + item);
+                    }
+                }
+            }
+        } else {
+            System.out.println("无白名单文件");
+        }
+
     }
 
     private int getStartMethodId() {
@@ -113,8 +156,16 @@ public class MethodCollector {
     }
 
     public boolean isNeedTraceClass(String className) {
-        //todo:白名单
-        return ASMConfig.isNeedTraceClass(className);
+        //白名单
+        if (mWhiteClasses.contains(className)) {
+            return false;
+        }
+        for (String whitePackage : mWhitePackages) {
+            if (className.startsWith(whitePackage)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 

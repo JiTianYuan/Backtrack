@@ -1,5 +1,7 @@
 package com.jty.backtrack_plugin.asm;
 
+import java.util.HashSet;
+
 /**
  * @author jty
  * @date 2021/10/11
@@ -13,16 +15,20 @@ public class ASMConfig {
     public static final String mappingDir = "";
 
 
-    public static final String[] UN_TRACE_CLASS = {"R.class", "R$", "Manifest", "BuildConfig"};
+    private static final String[] UN_TRACE_CLASS = {"R.class", "R$", "Manifest", "BuildConfig"};
 
-    public static boolean isNeedTraceClass(String clsName) {
-        boolean isNeed = true;
-        clsName = clsName.replaceAll("/", ".");
-        if (clsName.startsWith("com.jty.backtrack.")) {
-            isNeed = false;
-        }
-        return isNeed;
-    }
+    public static final String[] DEFAULT_WHITE_PACKAGE = {
+            "com/jty/backtrack/"
+    };
+
+//    public static boolean isNeedTraceClass(String clsName) {
+//        boolean isNeed = true;
+//        clsName = clsName.replaceAll("/", ".");
+//        if (clsName.startsWith("com.jty.backtrack.")) {
+//            isNeed = false;
+//        }
+//        return isNeed;
+//    }
 
 
     /**

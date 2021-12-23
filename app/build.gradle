@@ -27,6 +27,7 @@ android {
 
     backtrack {
         methodIdStart = "0x00"
+        whiteListFile = "backtrack-whitelist.txt"
     }
 }
 

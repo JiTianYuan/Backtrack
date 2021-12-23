@@ -1,5 +1,7 @@
 package com.jty.backtrack_plugin.asm.collector;
 
+import com.jty.backtrack_plugin.asm.MethodItem;
+
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -37,6 +39,8 @@ class CollectClassVisitor extends ClassVisitor {
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         if (!isNeedTrace) {
+            MethodItem methodItem = MethodItem.create(0, access, className, name, desc);
+            mMethodCollector.putCollectedIgnoreMethod(methodItem);
             return super.visitMethod(access, name, desc, signature, exceptions);
         } else {
             return new CollectMethodVisitor(className, access, name, desc, signature, exceptions, mMethodCollector);
