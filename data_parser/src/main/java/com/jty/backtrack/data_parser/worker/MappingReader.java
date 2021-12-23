@@ -18,7 +18,7 @@ import java.util.List;
  * 读取mapping文件
  */
 class MappingReader {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private HashMap<Integer, String> methodMapping = new HashMap<>();
 

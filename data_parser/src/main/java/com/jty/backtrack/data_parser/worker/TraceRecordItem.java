@@ -4,12 +4,17 @@ package com.jty.backtrack.data_parser.worker;
  * @author jty
  * @date 2021/12/21
  */
-class TraceRecordItem {
+public class TraceRecordItem {
     public int methodId;
 
     public long timeMicroseconds;
 
     public String status;
+
+    /**
+     * 是否是因为异常退出的
+     */
+    public boolean isException;
 
     public TraceRecordItem() {
     }

@@ -70,8 +70,8 @@ class OutputTask implements Runnable {
                 long statusSpec = mDumpStatusStack[i];
                 int methodId = mDumpIdStack[i];
                 long time = StatusSpec.getTime(statusSpec) - zeroTime;
-                boolean isStart = StatusSpec.isStart(statusSpec);
-                bw.write(OutputTemplate.buildData(methodId, time, isStart));
+                long status = StatusSpec.getStatus(statusSpec);
+                bw.write(OutputTemplate.buildData(methodId, time, status));
                 bw.newLine();
                 if (mDebug) {
                     //Log.i(OutputProcessorImpl.TAG, "写入文件 = " + OutputTemplate.buildData(methodId, time, isStart));

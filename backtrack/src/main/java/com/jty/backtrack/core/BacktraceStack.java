@@ -16,7 +16,7 @@ import static com.jty.backtrack.core.Backtrack.TAG;
  * 回溯堆栈
  * 线程安全，只考虑主线程
  * <p>
- * 记录方法状态的数组：long类型，64位，第一位表示入栈还是出栈，后63位表示时间（精确到微秒）
+ * 记录方法状态的数组：long类型，64位，前两位表示状态(入栈、出栈、异常)，后62位表示时间（精确到微秒）
  * 记录方法id的数组：int类型，保存方法id
  * 所以，一个方法入栈占用96位，12字节。
  */
@@ -63,10 +63,10 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
         mIdStack = new int[mStackSize];
     }
 
-    protected void record(int methodId, boolean isStart) {
+    protected void record(int methodId, long status) {
         checkExpand();
         long time = System.nanoTime() / 1000; //纳秒转微秒
-        mStatusStack[mPoint] = StatusSpec.makeStatusSpec(isStart, time);
+        mStatusStack[mPoint] = StatusSpec.makeStatusSpec(status, time);
         mIdStack[mPoint] = methodId;
         mPoint++;
     }

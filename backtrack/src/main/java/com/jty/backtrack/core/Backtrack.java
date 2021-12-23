@@ -10,6 +10,7 @@ import android.util.Log;
 import com.jty.backtrack.frame_monitor.FrameMonitor;
 import com.jty.backtrack.store.IOutputProcessor;
 import com.jty.backtrack.store.OutputProcessorImpl;
+import com.jty.backtrack.utils.StatusSpec;
 
 import java.io.File;
 
@@ -85,7 +86,7 @@ public class Backtrack implements BacktrackContext {
         if (DEBUG) {
             Log.i(TAG, "method in = " + id);
         }
-        mInstance.mBacktraceStack.record(id, true);
+        mInstance.mBacktraceStack.record(id, StatusSpec.STATUS_IN);
     }
 
     /**
@@ -104,7 +105,7 @@ public class Backtrack implements BacktrackContext {
         if (DEBUG) {
             Log.i(TAG, "method out = " + id);
         }
-        mInstance.mBacktraceStack.record(id, false);
+        mInstance.mBacktraceStack.record(id, StatusSpec.STATUS_OUT);
     }
 
     public static void t(int id) {
@@ -118,7 +119,7 @@ public class Backtrack implements BacktrackContext {
         if (DEBUG) {
             Log.i(TAG, "inCatch = " + id);
         }
-        //todo
+        mInstance.mBacktraceStack.record(id, StatusSpec.STATUS_EXCEPTION);
     }
 
 

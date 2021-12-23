@@ -3,17 +3,32 @@ package com.jty.backtrack.utils;
 /**
  * @author jty
  * @date 2021/11/4
- *
+ * <p>
  * 用于记录方法出栈入栈的时间
- * 第一位1表示进栈，0表示出栈。剩下63位表示时间，微秒单位
+ * 前两位表示状态(入栈、出栈、异常)，后62位表示时间（精确到微秒）
  */
 public class StatusSpec {
-    private static final int FLAG_SHIFT = 63;   //前1位表示入栈还是出栈，后63位表示时间
+    private static final int FLAG_SHIFT = 62;   //前两位表示状态(入栈、出栈、异常)，后62位表示时间（精确到微秒）
+    private static final long FLAG_MASK = 0x3L << FLAG_SHIFT; //1100 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
 
-    private static final long FLAG_MASK = 0x1L << FLAG_SHIFT; //1000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+    /**
+     * 方法start
+     */
+    public static final long STATUS_IN = 0L << FLAG_SHIFT;
 
-    public static boolean isStart(long statusSpec) {
-        return (statusSpec & FLAG_MASK) == FLAG_MASK;
+    /**
+     * 方法end
+     */
+    public static final long STATUS_OUT = 1L << FLAG_SHIFT;
+
+    /**
+     * 方法走进了try-catch块
+     */
+    public static final long STATUS_EXCEPTION = 2L << FLAG_SHIFT;
+
+
+    public static long getStatus(long statusSpec) {
+        return (statusSpec & FLAG_MASK);
     }
 
     public static long getTime(long statusSpec) {
@@ -21,7 +36,8 @@ public class StatusSpec {
     }
 
 
-    public static long makeStatusSpec(boolean isStart, long time) {
-        return (time & ~FLAG_MASK) | (isStart ? FLAG_MASK : 0L);
+    public static long makeStatusSpec(long status, long time) {
+        return (time & ~FLAG_MASK) | (status & FLAG_MASK);
     }
+
 }

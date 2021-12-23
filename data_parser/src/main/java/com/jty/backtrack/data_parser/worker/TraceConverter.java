@@ -1,6 +1,8 @@
 package com.jty.backtrack.data_parser.worker;
 
 import com.jty.backtrack.data_parser.Util;
+import com.jty.backtrack.data_parser.worker.correct.ICorrector;
+import com.jty.backtrack.data_parser.worker.correct.ExceptionCorrector;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,7 +14,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -139,13 +140,16 @@ class TraceConverter {
                 }
 
                 //处理数据
-                TraceCorrector traceCorrector = new TraceCorrector();
+                ICorrector traceCorrector = new ExceptionCorrector();
                 traceCorrector.correct(data);
 
                 //输出数据
                 //输出格式：<包名-线程id>  ( <线程id>) [000] .... <时间>: tracing_mark_write: <B或者E>|<进程ID>|<TAG>
                 for (TraceRecordItem recordItem : data) {
                     String methodName = getMethodName(recordItem.methodId);
+                    if (recordItem.isException) {
+                        methodName = "(E)" + methodName;
+                    }
                     double timeSecond = recordItem.timeMicroseconds / 1000000d;
                     //输出格式：<包名-线程id>  ( <线程id>) [000] .... <时间>: tracing_mark_write: <B或者E>|<进程ID>|<TAG>
                     String traceLine = pkgName + "-" + threadId + "  ( " + threadId + ") [000] .... " + df.format(timeSecond) + ": tracing_mark_write: " + recordItem.status + "|" + processId + "|" + methodName;
