@@ -1,1 +1,1 @@
--keepclass com.jty.backtrack_demo.MyApplication
+-keepMethod com.jty.backtrack_demo.MyApplication.attachBaseContext

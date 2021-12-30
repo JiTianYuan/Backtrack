@@ -36,7 +36,7 @@ class CollectMethodVisitor extends MethodNode {
             isConstructor = true;
         }
 
-        boolean isNeedTrace = mMethodCollector.isNeedTraceMethod(methodItem.className, name);
+        boolean isNeedTrace = mMethodCollector.isNeedTraceMethod(className, name);
         if (isNeedTrace) {
             if (isEmptyMethod() || isGetSetMethod() || isSingleMethod()) {
                 //不需要插桩
@@ -48,7 +48,6 @@ class CollectMethodVisitor extends MethodNode {
         } else {
             //不需要插桩
             mMethodCollector.putCollectedIgnoreMethod(methodItem);
-            return;
         }
     }
 

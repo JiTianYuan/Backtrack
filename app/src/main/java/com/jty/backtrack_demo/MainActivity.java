@@ -15,19 +15,15 @@ public class MainActivity extends Activity {
         try {
             A();
         } catch (Exception e) {
-            Log.i("Backtrack","11111111");
             e.printStackTrace();
-            Log.i("Backtrack","222222222");
         }
         try{
             int a = 0;
             for (int i = 0; i < 10; i++) {
                 a++;
             }
-            C();
         } catch (Exception e){
             e.printStackTrace();
-            Log.i("Backtrack","33333333");
         }
 
     }
@@ -42,13 +38,9 @@ public class MainActivity extends Activity {
         for (int i = 0; i < 1000; i++) {
             a++;
         }
-        Log.i("Backtrack",String.valueOf(a));
         Activity activity = null;
         activity.onContentChanged();
     }
 
-    private void C(){
-        int ret = 2 / 0;
-    }
 
 }

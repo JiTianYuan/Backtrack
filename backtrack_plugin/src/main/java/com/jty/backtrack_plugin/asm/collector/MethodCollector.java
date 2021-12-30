@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +41,7 @@ public class MethodCollector {
 
     private final HashSet<String> mWhitePackages = new HashSet<>();
     private final HashSet<String> mWhiteClasses = new HashSet<>();
+    private final HashSet<String> mWhiteMethods = new HashSet<>();
 
     private final AtomicInteger methodId;
 
@@ -71,15 +73,20 @@ public class MethodCollector {
                     if (item.startsWith("[")) {
                         continue;
                     }
-                    if (item.startsWith("-keepclass ")) {
-                        item = item.replace("-keepclass ", "");
+                    if (item.startsWith("-keepClass ")) {
+                        item = item.replace("-keepClass ", "");
                         mWhiteClasses.add(item);
                         System.out.println("class白名单：" + item);
-                    } else if (item.startsWith("-keeppackage ")) {
-                        item = item.replace("-keeppackage ", "");
+                    } else if (item.startsWith("-keepPackage ")) {
+                        item = item.replace("-keepPackage ", "");
                         item = item.replaceAll("\\*", "");
                         mWhitePackages.add(item);
                         System.out.println("package白名单：" + item);
+                    } else if (item.startsWith("-keepMethod ")) {
+                        //最后一个点后面的是方法名，前面的是类名
+                        item = item.replace("-keepMethod ", "");
+                        mWhiteMethods.add(item);
+                        System.out.println("方法白名单：" + item);
                     }
                 }
             }
@@ -151,7 +158,9 @@ public class MethodCollector {
     }
 
     public boolean isNeedTraceMethod(String className, String methodName) {
-        //todo:白名单
+        if (mWhiteMethods.contains(className + "/" + methodName)) {
+            return false;
+        }
         return true;
     }
 

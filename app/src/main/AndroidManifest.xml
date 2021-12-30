@@ -16,6 +16,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="com.jty.backtrack_demo.TestContentProvider"
+            android:authorities="com.jty.backtrack_demo.testProvider"
+            android:multiprocess="false" />
     </application>
 
 </manifest>
