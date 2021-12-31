@@ -7,13 +7,13 @@ import java.util.List;
 
 /**
  * @author jty
- * @date 2021/12/23
+ * @date 2021/12/30
  *
- * 空修正器，用来对比修正效果
+ * 移除T事件
  */
-public class EmptyCorrector extends BaseCorrector{
+class RemoveTTask extends BaseCorrectTask{
     @Override
-    public void correct(List<TraceRecordItem> data) {
+    protected void run(List<TraceRecordItem> data) {
         Iterator<TraceRecordItem> iterator = data.iterator();
         while (iterator.hasNext()){
             TraceRecordItem item = iterator.next();

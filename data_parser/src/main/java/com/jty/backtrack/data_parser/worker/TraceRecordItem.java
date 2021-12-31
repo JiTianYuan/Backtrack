@@ -5,6 +5,15 @@ package com.jty.backtrack.data_parser.worker;
  * @date 2021/12/21
  */
 public class TraceRecordItem {
+    //正常的栈
+    public static final int STACK_STATUS_NORMAL = 0;
+
+    //栈由于发生了异常，被try-catch，导致没有end
+    public static final int STACK_STATUS_CATCH = 1;
+
+    //栈因为未知异常导致没有end
+    public static final int STACK_STATUS_UNKNOWN_EXCEPTION = 2;
+
     public int methodId;
 
     public long timeMicroseconds;
@@ -12,9 +21,10 @@ public class TraceRecordItem {
     public String status;
 
     /**
-     * 是否是因为异常退出的
+     * 当前堆栈的状态：
+     * {@link #STACK_STATUS_NORMAL} {@link #STACK_STATUS_CATCH},{@link #STACK_STATUS_UNKNOWN_EXCEPTION}
      */
-    public boolean isException;
+    public int stackStatus = STACK_STATUS_NORMAL;
 
     public TraceRecordItem() {
     }

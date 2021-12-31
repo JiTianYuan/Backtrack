@@ -1,8 +1,7 @@
 package com.jty.backtrack.data_parser.worker;
 
 import com.jty.backtrack.data_parser.Util;
-import com.jty.backtrack.data_parser.worker.correct.ICorrector;
-import com.jty.backtrack.data_parser.worker.correct.ExceptionCorrector;
+import com.jty.backtrack.data_parser.worker.correct.TraceCorrector;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -140,15 +139,17 @@ class TraceConverter {
                 }
 
                 //处理数据
-                ICorrector traceCorrector = new ExceptionCorrector();
+                TraceCorrector traceCorrector = new TraceCorrector();
                 traceCorrector.correct(data);
 
                 //输出数据
                 //输出格式：<包名-线程id>  ( <线程id>) [000] .... <时间>: tracing_mark_write: <B或者E>|<进程ID>|<TAG>
                 for (TraceRecordItem recordItem : data) {
                     String methodName = getMethodName(recordItem.methodId);
-                    if (recordItem.isException) {
+                    if (recordItem.stackStatus == TraceRecordItem.STACK_STATUS_CATCH) {
                         methodName = "(E)" + methodName;
+                    } else if (recordItem.stackStatus == TraceRecordItem.STACK_STATUS_UNKNOWN_EXCEPTION) {
+                        methodName = "(?)" + methodName;
                     }
                     double timeSecond = recordItem.timeMicroseconds / 1000000d;
                     //输出格式：<包名-线程id>  ( <线程id>) [000] .... <时间>: tracing_mark_write: <B或者E>|<进程ID>|<TAG>

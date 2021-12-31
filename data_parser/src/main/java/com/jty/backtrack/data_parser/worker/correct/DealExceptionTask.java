@@ -1,6 +1,7 @@
 package com.jty.backtrack.data_parser.worker.correct;
 
 import com.jty.backtrack.data_parser.worker.TraceRecordItem;
+import com.jty.backtrack.data_parser.worker.correct.BaseCorrectTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,11 +9,12 @@ import java.util.List;
 /**
  * @author jty
  * @date 2021/12/21
- * Trace修正器，用于处理因异常导致的 did not finished
+ * 用于处理因异常导致的 did not finished
  */
-public class ExceptionCorrector extends BaseCorrector {
+public class DealExceptionTask extends BaseCorrectTask {
 
-    public void correct(List<TraceRecordItem> data) {
+    @Override
+    protected void run(List<TraceRecordItem> data) {
 
         //查找是否有T类型，没有说明无异常，不处理
         //如果有T类型，就T类型往前找，找B类型的item。碰到E类型或者是B类型但是id == T的id，就停止找
@@ -89,9 +91,8 @@ public class ExceptionCorrector extends BaseCorrector {
                 System.out.println("补数据");
                 List<TraceRecordItem> lostItem = getLostItem(stack, cur.timeMicroseconds);
                 data.addAll(i, lostItem);
-                data.remove(cur);
                 //删除T类型数据
-                i += lostItem.size() - 1;
+                i += lostItem.size();
                 //test:打印栈结构
                 printStack(stack);
             }
@@ -110,8 +111,8 @@ public class ExceptionCorrector extends BaseCorrector {
                     if (method[1] == null) {
                         //补全
                         method[1] = new TraceRecordItem(method[0].methodId, timeMicroseconds, "E");
-                        method[0].isException = true;
-                        method[1].isException = true;
+                        method[0].stackStatus = TraceRecordItem.STACK_STATUS_CATCH;
+                        method[1].stackStatus = TraceRecordItem.STACK_STATUS_CATCH;
                         lostItem.add(method[1]);
                     }
                 }

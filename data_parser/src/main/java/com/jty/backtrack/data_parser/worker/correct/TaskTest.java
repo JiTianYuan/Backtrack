@@ -9,10 +9,9 @@ import java.util.List;
  * @author jty
  * @date 2021/12/23
  */
-class CorrectTest {
+class TaskTest {
     public static void main(String[] args) {
         //模拟数据
-        ExceptionCorrector corrector = new ExceptionCorrector();
         List<TraceRecordItem> data = new ArrayList<>();
         data.add(new TraceRecordItem(1, 1, "B"));
         data.add(new TraceRecordItem(2, 2, "B"));
@@ -36,10 +35,11 @@ class CorrectTest {
             System.out.println(item);
         }
 
-        corrector.correct(data);
+        RepairEndTask task = new RepairEndTask();
+        task.run(data);
         System.out.println("=================================");
         for (TraceRecordItem item : data) {
-            System.out.println(item+(item.isException?",补":""));
+            System.out.println(item + (item.stackStatus == 0 ? "" : "栈异常" + item.stackStatus));
         }
     }
 }

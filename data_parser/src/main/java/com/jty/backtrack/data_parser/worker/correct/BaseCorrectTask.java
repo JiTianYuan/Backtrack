@@ -8,7 +8,11 @@ import java.util.List;
  * @author jty
  * @date 2021/12/23
  */
-abstract class BaseCorrector implements ICorrector{
+abstract class BaseCorrectTask {
+
+
+    protected abstract void run(List<TraceRecordItem> data);
+
 
     protected void printStack(List<List<TraceRecordItem[]>> stack) {
         System.out.println("-------------调用栈--------------");

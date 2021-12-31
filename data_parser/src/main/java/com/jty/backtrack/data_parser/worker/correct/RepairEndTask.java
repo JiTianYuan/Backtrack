@@ -1,32 +1,69 @@
 package com.jty.backtrack.data_parser.worker.correct;
 
 import com.jty.backtrack.data_parser.worker.TraceRecordItem;
+import com.jty.backtrack.data_parser.worker.correct.BaseCorrectTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * @author jty
  * @date 2021/12/21
- * Trace修正器，用于处理 did not finished
- * todo:
+ * 补充End事件，用于解决 异常处理完还是存在没有End 的情况
+ * 比如 try-catch里套try-catch的情况。。。
  */
-class FullCorrector extends BaseCorrector {
+class RepairEndTask extends BaseCorrectTask {
 
-    public void correct(List<TraceRecordItem> data) {
-        System.out.println("还原栈结构");
+    @Override
+    public void run(List<TraceRecordItem> data) {
+        //System.out.println("处理前");
+        //printDataAsStack(data);
+        //System.out.println("=========================================");
+        Stack<TraceRecordItem> stack = new Stack<>();
+        TraceRecordItem lastPopStack = null;
+        for (int i = 0; i < data.size(); i++) {
+            TraceRecordItem item = data.get(i);
+            if (item.status.equals("B")) {
+                //入栈
+                stack.push(item);
+            } else if (item.status.equals("E")) {
+                //出栈
+                TraceRecordItem peek = stack.peek();
+                if (peek != null) {
+                    if (peek.methodId != item.methodId) {
+                        //当前栈顶缺失end事件
+                        while (stack.peek().methodId != item.methodId) {
+                            //构建需要补上的item
+                            TraceRecordItem loseEndItem = stack.peek();
+                            TraceRecordItem addItem = new TraceRecordItem(loseEndItem.methodId, item.timeMicroseconds, item.status);
+                            loseEndItem.stackStatus = TraceRecordItem.STACK_STATUS_UNKNOWN_EXCEPTION;
+                            addItem.stackStatus = TraceRecordItem.STACK_STATUS_UNKNOWN_EXCEPTION;
+                            data.add(i + 1, addItem);
+                            i++;
+                            lastPopStack = stack.pop();
+                        }
+                    }
+                    lastPopStack = stack.pop();
+                }
+            }
+        }
+
+        //System.out.println("处理后");
+        //printDataAsStack(data);
+    }
+
+    private void printDataAsStack(List<TraceRecordItem> data) {
         List<List<TraceRecordItem[]>> stack = new ArrayList();
         int stackFrame = 0;
         for (int i = 0; i < data.size(); i++) {
             TraceRecordItem item = data.get(i);
-            System.out.println("处理：当前栈层级 = " + stackFrame + "，item = " + item);
 
             if (item.status.equals("B")) {
                 //如果上一个也是B，栈帧++
                 if ((i > 0)
                         && data.get(i - 1).status.equals("B")) {
                     stackFrame++;
-                    System.out.println("上一个也是B，栈帧++");
                 }
                 //获取当前栈层级空间
                 if (stack.size() <= stackFrame) {
@@ -58,17 +95,11 @@ class FullCorrector extends BaseCorrector {
                         && data.get(i - 1).status.equals("E")
                         && stackFrame > 0) {
                     stackFrame--;
-                    System.out.println("上一个也是E，栈帧--");
                 }
             }
         }
         printStack(stack);
-        //补全栈
-
-        //展开栈
     }
-
-
 
 
 }
