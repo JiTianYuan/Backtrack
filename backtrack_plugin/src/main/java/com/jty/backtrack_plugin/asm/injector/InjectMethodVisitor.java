@@ -4,6 +4,7 @@ import com.jty.backtrack_plugin.asm.ASMConfig;
 import com.jty.backtrack_plugin.asm.MethodItem;
 import com.jty.backtrack_plugin.asm.collector.MethodCollector;
 
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -19,8 +20,10 @@ import java.util.HashSet;
  */
 class InjectMethodVisitor extends AdviceAdapter {
     private String className;
+    private String methodName;
     private final MethodItem mMethodItem;
     private HashSet<Label> mTryCatchLabels = new HashSet<>();
+    private boolean mHasBootEndTag = false;
 
     /**
      * Constructs a new {@link AdviceAdapter}.
@@ -36,6 +39,7 @@ class InjectMethodVisitor extends AdviceAdapter {
                                   String methodName, String descriptor, MethodItem methodItem) {
         super(api, methodVisitor, access, methodName, descriptor);
         this.className = className;
+        this.methodName = methodName;
         this.mMethodItem = methodItem;
     }
 
@@ -43,23 +47,25 @@ class InjectMethodVisitor extends AdviceAdapter {
     protected void onMethodEnter() {
         //方法入口插桩
         if (mMethodItem != null) {
-            //System.out.println("onMethodEnter --->>> " + className + " $ " + getName());
             mv.visitLdcInsn(mMethodItem.id);
             mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_TRACE_IN, "(I)V", false);
-            //mv.visitLdcInsn(getName());
-            //mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_TRACE_IN, "(Ljava/lang/String;)V", false);
         }
     }
 
     @Override
     protected void onMethodExit(int opcode) {
+        if (className.equals(ASMConfig.CLASS_RUNTIME_CONFIG) && methodName.equals("<clinit>")) {
+            injectRuntimeConfig();
+            return;
+        }
         //方法出口插桩
         if (mMethodItem != null) {
-            //System.out.println("onMethodExit --->>> " + className + " $ " + getName() + ", opcode = " + opcode);
             mv.visitLdcInsn(mMethodItem.id);
             mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_TRACE_OUT, "(I)V", false);
-            //mv.visitLdcInsn(getName());
-            //mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_TRACE_OUT, "(Ljava/lang/String;)V", false);
+        }
+        //启动耗时检测结束
+        if (mHasBootEndTag) {
+            mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_BOOT_END, "()V", false);
         }
     }
 
@@ -70,6 +76,14 @@ class InjectMethodVisitor extends AdviceAdapter {
     }
 
     @Override
+    public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+        if (descriptor.contains(ASMConfig.ANNOTATION_BOOT_END_TAG)) {
+            mHasBootEndTag = true;
+        }
+        return super.visitAnnotation(descriptor, visible);
+    }
+
+    @Override
     public void visitLabel(Label label) {
         super.visitLabel(label);
         if (mTryCatchLabels.contains(label)) {
@@ -77,6 +91,12 @@ class InjectMethodVisitor extends AdviceAdapter {
             mv.visitLdcInsn(mMethodItem.id);
             mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_TRACE_CATCH, "(I)V", false);
         }
+    }
+
+    private void injectRuntimeConfig() {
+        mv.visitLdcInsn(ASMConfig.sHasBootEndTag);
+        mv.visitMethodInsn(INVOKESTATIC, ASMConfig.CLASS_RUNTIME_CONFIG, "setHasBootEndTag", "(Z)V", false);
+        System.out.println("[Backtrack]injectRuntimeConfig：sHasBootEndTag = " + ASMConfig.sHasBootEndTag);
     }
 
 }

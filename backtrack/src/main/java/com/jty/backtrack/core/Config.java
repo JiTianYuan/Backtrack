@@ -14,6 +14,12 @@ public class Config {
     //丢帧阈值，丢帧大于n 就记录
     private int mJankFrameThreshold;
 
+    //初始栈大小
+    private int mInitialStackSize;
+
+    // 记录启动耗时
+    private boolean mRecordStartUp;
+
     private boolean mDebuggable;
 
     private Config() {
@@ -31,13 +37,24 @@ public class Config {
         return mJankFrameThreshold;
     }
 
-    public boolean isDebuggable(){
+    public int getInitialStackSize() {
+        return mInitialStackSize;
+    }
+
+    public boolean isDebuggable() {
         return mDebuggable;
     }
 
-    private Config(String outputDir, int jankFrameThreshold, boolean debuggable) {
-        this.mOutputDir = outputDir;
-        this.mJankFrameThreshold = jankFrameThreshold;
+    public boolean isRecordStartUp() {
+        return mRecordStartUp;
+    }
+
+    private Config(String outputDir, int jankFrameThreshold, int initialStackSize,
+                   boolean recordStartUp, boolean debuggable) {
+        mOutputDir = outputDir;
+        mJankFrameThreshold = jankFrameThreshold;
+        mInitialStackSize = initialStackSize;
+        mRecordStartUp = recordStartUp;
         mDebuggable = debuggable;
     }
 
@@ -45,7 +62,9 @@ public class Config {
 
         private String outputDir = "";
         private int jankFrameThreshold = 1;
+        private int initialStackSize = BacktraceStack.DEFAULT_STACK_SIZE;
         private boolean debuggable = false;
+        private boolean recordStartUp = false;
 
         /**
          * 输出文件夹
@@ -74,8 +93,28 @@ public class Config {
             return this;
         }
 
+        /**
+         * 是否开启 启动耗时记录模式
+         * 需要配合 @BootEndTag 使用
+         */
+        public Builder recordStartUp(boolean recordStartUp) {
+            this.recordStartUp = recordStartUp;
+            return this;
+        }
+
+        /**
+         * 初始栈大小
+         * 一个栈深度占用12字节，默认栈大小 1024x1024，占用12M内存
+         *
+         * @see BacktraceStack#DEFAULT_STACK_SIZE
+         */
+        public Builder initialStackSize(int initialStackSize) {
+            this.initialStackSize = initialStackSize;
+            return this;
+        }
+
         public Config build() {
-            return new Config(outputDir, jankFrameThreshold, debuggable);
+            return new Config(outputDir, jankFrameThreshold, initialStackSize, recordStartUp, debuggable);
         }
     }
 }

@@ -2,8 +2,8 @@ package com.jty.backtrack_demo;
 
 import android.app.Application;
 import android.content.Context;
-import android.os.Environment;
 
+import com.jty.backtrack.annotation.BootEndTag;
 import com.jty.backtrack.core.Backtrack;
 import com.jty.backtrack.core.Config;
 
@@ -15,6 +15,7 @@ import java.io.File;
  */
 public class MyApplication extends Application {
 
+    @BootEndTag
     @Override
     public void onCreate() {
         super.onCreate();
@@ -32,6 +33,7 @@ public class MyApplication extends Application {
                 .jankFrameThreshold(1)
                 //.outputDir(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Backtrace")
                 .outputDir(base.getFilesDir().getAbsolutePath() + File.separator + "Backtrace")
+                .recordStartUp(false)
                 .build();
         Backtrack.init(base, config);
         super.attachBaseContext(base);

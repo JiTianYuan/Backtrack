@@ -23,9 +23,9 @@ import static com.jty.backtrack.core.Backtrack.TAG;
 class BacktraceStack implements FrameMonitor.FrameObserver {
     /**
      * 初始堆栈大小
-     * todo:需要计算一帧大概会有多少的深度。然后考虑到丢帧和ANR的情况，计算一下5秒需要多少深度
+     * 12字节 x 1024 x 1024 = 12M;
      */
-    private static final int STACK_SIZE = 1024 * 1000;
+    public static final int DEFAULT_STACK_SIZE = 1024 * 1024;
     /**
      * 扩容因子，扩容后的容量是当前容量的 x倍
      */
@@ -55,12 +55,23 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
      */
     private long mFrameTimeThreshold;
 
-    public BacktraceStack(BacktrackContext context, long frameTimeThreshold) {
+    private long mStartUpTime;
+
+    //可能有脏数据：刚从BOOT_MODE 切换到 JANK_MODE 时，由于BOOT_MODE结束会导出堆栈，第一帧的的数据可能不全，需要丢弃
+    private boolean mMaybeHaveDirtyData;
+
+    /**
+     * 当前的记录模式
+     */
+    private RecordMode mCurMode;
+
+    protected BacktraceStack(BacktrackContext context, long frameTimeThreshold, int initialStackSize) {
         mContext = context;
         mFrameTimeThreshold = frameTimeThreshold;
-        mStackSize = STACK_SIZE;
+        mStackSize = initialStackSize > 0 ? initialStackSize : DEFAULT_STACK_SIZE;
         mStatusStack = new long[mStackSize];
         mIdStack = new int[mStackSize];
+        mCurMode = RecordMode.JANK_MODE;
     }
 
     protected void record(int methodId, long status) {
@@ -69,6 +80,26 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
         mStatusStack[mPoint] = StatusSpec.makeStatusSpec(status, time);
         mIdStack[mPoint] = methodId;
         mPoint++;
+    }
+
+
+    protected void setMode(RecordMode mode) {
+        if (mCurMode == mode) {
+            return;
+        }
+        if (mode == RecordMode.BOOT_MODE) {
+            mStartUpTime = System.nanoTime();
+        } else {
+            if (mCurMode == RecordMode.BOOT_MODE) {
+                //结束启动记录模式，dump堆栈
+                dump(System.nanoTime() - mStartUpTime);
+                mMaybeHaveDirtyData = true;
+            }
+        }
+        mCurMode = mode;
+        if (mContext.isDebug()) {
+            Log.i(TAG, "setMode = " + mode.name());
+        }
     }
 
     /**
@@ -90,7 +121,7 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
         long[] dumpStatusStack = Arrays.copyOf(mStatusStack, mPoint);
         int[] dumpIdStack = Arrays.copyOf(mIdStack, mPoint);
         //保存到文件
-        mContext.getOutputProcessor().saveBacktraceStack(frameDurationNanos, dumpStatusStack, dumpIdStack);
+        mContext.getOutputProcessor().saveBacktraceStack(mCurMode, frameDurationNanos, dumpStatusStack, dumpIdStack);
         if (mContext.isDebug()) {
             Log.i(TAG, "Dump，堆栈容量 = " + mPoint + ",耗时 = " + (System.currentTimeMillis() - start));
         }
@@ -117,6 +148,14 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
 
     @Override
     public void onFrameFinish(long frameIntervalNanos, long frameDurationNanos) {
+        if (mCurMode == RecordMode.BOOT_MODE) {
+            return;
+        }
+        if (mMaybeHaveDirtyData) {
+            mMaybeHaveDirtyData = false;
+            discard();
+            return;
+        }
         if (frameDurationNanos >= mFrameTimeThreshold) {
             if (mContext.isDebug()) {
                 Log.i(TAG, "onFrameFinish，need dump，frameDurationNanos = " + frameDurationNanos);
@@ -126,4 +165,5 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
             discard();
         }
     }
+
 }

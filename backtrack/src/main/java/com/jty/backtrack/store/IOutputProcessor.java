@@ -1,5 +1,7 @@
 package com.jty.backtrack.store;
 
+import com.jty.backtrack.core.RecordMode;
+
 import java.util.Arrays;
 
 /**
@@ -9,5 +11,5 @@ import java.util.Arrays;
  * 结果输出功能接口
  */
 public interface IOutputProcessor {
-    void saveBacktraceStack(long frameDurationNanos,long[] dumpStatusStack, int[] dumpIdStack);
+    void saveBacktraceStack(RecordMode mode, long frameDurationNanos, long[] dumpStatusStack, int[] dumpIdStack);
 }

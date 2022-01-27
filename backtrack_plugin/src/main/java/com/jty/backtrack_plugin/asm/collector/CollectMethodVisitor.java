@@ -1,7 +1,9 @@
 package com.jty.backtrack_plugin.asm.collector;
 
+import com.jty.backtrack_plugin.asm.ASMConfig;
 import com.jty.backtrack_plugin.asm.MethodItem;
 
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -25,6 +27,15 @@ class CollectMethodVisitor extends MethodNode {
         super(Opcodes.ASM5, access, name, desc, signature, exceptions);
         this.className = className;
         mMethodCollector = methodCollector;
+    }
+
+    @Override
+    public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+        if (descriptor.contains(ASMConfig.ANNOTATION_BOOT_END_TAG)) {
+            //标记 有BootEndTag
+            ASMConfig.sHasBootEndTag = true;
+        }
+        return super.visitAnnotation(descriptor, visible);
     }
 
     @Override

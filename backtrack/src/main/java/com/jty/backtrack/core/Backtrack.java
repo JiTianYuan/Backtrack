@@ -65,9 +65,16 @@ public class Backtrack implements BacktrackContext {
         mFrameIntervalNanos = FrameMonitor.getInstance().getFrameIntervalNanos();
         //初始化回溯堆栈
         long frameTimeThreshold = mConfig.getJankFrameThreshold() * mFrameIntervalNanos;
-        mBacktraceStack = new BacktraceStack(this, frameTimeThreshold);
+        mBacktraceStack = new BacktraceStack(this, frameTimeThreshold, mConfig.getInitialStackSize());
         FrameMonitor.getInstance().addFrameObserver(mBacktraceStack);
         mOutputProcessor = new OutputProcessorImpl(this);
+        if (mConfig.isRecordStartUp()) {
+            if (BacktrackRuntimeConfig.isHasBootEndTag()) {
+                mBacktraceStack.setMode(RecordMode.BOOT_MODE);
+            } else {
+                throw new RuntimeException("recordStartUp 模式必须配合 @BootEndTag 注解使用！");
+            }
+        }
     }
 
     /**
@@ -122,6 +129,22 @@ public class Backtrack implements BacktrackContext {
         mInstance.mBacktraceStack.record(id, StatusSpec.STATUS_EXCEPTION);
     }
 
+    /**
+     * 启动耗时检测结束
+     * 不要主动调用，由ASM插桩调用（为了保证堆栈完整性，需要将调用插桩到方法end记录之后）
+     */
+    public static void bootEnd() {
+        if (mInstance == null || mInstance.mBacktraceStack == null) {
+            return;
+        }
+        if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
+            throw new RuntimeException("@BootEndTag 标记的方法必须运行在主线程！");
+        }
+        if (DEBUG) {
+            Log.i(TAG, "bootEnd!!!!");
+        }
+        mInstance.mBacktraceStack.setMode(RecordMode.JANK_MODE);
+    }
 
 
     @Override

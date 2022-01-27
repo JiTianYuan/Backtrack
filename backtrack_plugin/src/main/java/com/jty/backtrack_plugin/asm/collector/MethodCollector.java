@@ -165,6 +165,9 @@ public class MethodCollector {
     }
 
     public boolean isNeedTraceClass(String className) {
+        if (className.equals(ASMConfig.CLASS_RUNTIME_CONFIG)){
+            return true;
+        }
         //白名单
         if (mWhiteClasses.contains(className)) {
             return false;

@@ -8,18 +8,20 @@ import java.util.HashSet;
  */
 public class ASMConfig {
     public static final String METHOD_TRACE_CLASS = "com/jty/backtrack/core/Backtrack";
+    public static final String ANNOTATION_BOOT_END_TAG = "com/jty/backtrack/annotation/BootEndTag";
     public static final String METHOD_TRACE_IN = "i";
     public static final String METHOD_TRACE_OUT = "o";
     public static final String METHOD_TRACE_CATCH = "t";
-
-    public static final String mappingDir = "";
-
+    public static final String METHOD_BOOT_END = "bootEnd";
 
     private static final String[] UN_TRACE_CLASS = {"R.class", "R$", "Manifest", "BuildConfig"};
 
     public static final String[] DEFAULT_WHITE_PACKAGE = {
             "com/jty/backtrack/"
     };
+
+    public static final String CLASS_RUNTIME_CONFIG = "com/jty/backtrack/core/BacktrackRuntimeConfig";
+    public static boolean sHasBootEndTag = false;
 
 //    public static boolean isNeedTraceClass(String clsName) {
 //        boolean isNeed = true;

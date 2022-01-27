@@ -1,6 +1,7 @@
 package com.jty.backtrack.store;
 
 import com.jty.backtrack.core.BacktrackContext;
+import com.jty.backtrack.core.RecordMode;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -24,8 +25,17 @@ public class OutputProcessorImpl implements IOutputProcessor {
     }
 
     @Override
-    public void saveBacktraceStack(long frameDurationNanos, long[] dumpStatusStack, int[] dumpIdStack) {
-        String fileName = (System.currentTimeMillis()) + "_jank_" + (frameDurationNanos / 1000000) + "ms.backtrace";
+    public void saveBacktraceStack(RecordMode mode, long frameDurationNanos, long[] dumpStatusStack, int[] dumpIdStack) {
+        String modeName = "_";
+        switch (mode) {
+            case BOOT_MODE:
+                modeName = "_startUp_";
+                break;
+            case JANK_MODE:
+                modeName = "_jank_";
+                break;
+        }
+        String fileName = (System.currentTimeMillis()) + modeName + (frameDurationNanos / 1000000) + "ms.backtrace";
         String outputFilePath = mContext.getConfig().getOutputDir() + File.separator + fileName;
         OutputTask task = new OutputTask(outputFilePath, dumpStatusStack, dumpIdStack,
                 mContext.getUIThreadId(), mContext.getProcessId(), mContext.getPkgName(), mContext.isDebug());
