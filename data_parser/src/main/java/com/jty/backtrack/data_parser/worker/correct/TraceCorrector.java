@@ -18,7 +18,7 @@ public class TraceCorrector {
         dealExceptionTask.run(data);
 
         //删除T事件
-        RemoveTTask removeTTask = new RemoveTTask();
+        RemoveTargetTask removeTTask = new RemoveTargetTask("T");
         removeTTask.run(data);
 
         if (needRepairEnd(data)) {
@@ -26,6 +26,9 @@ public class TraceCorrector {
             RepairEndTask repairEndTask = new RepairEndTask();
             repairEndTask.run(data);
         }
+        //删除F事件
+        RemoveTargetTask removeFTask = new RemoveTargetTask("F");
+        removeFTask.run(data);
 
         CheckResultTask checkResultTask = new CheckResultTask();
         checkResultTask.run(data);

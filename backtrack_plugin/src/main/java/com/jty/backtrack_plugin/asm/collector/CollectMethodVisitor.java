@@ -29,14 +29,6 @@ class CollectMethodVisitor extends MethodNode {
         mMethodCollector = methodCollector;
     }
 
-    @Override
-    public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-        if (descriptor.contains(ASMConfig.ANNOTATION_BOOT_END_TAG)) {
-            //标记 有BootEndTag
-            ASMConfig.sHasBootEndTag = true;
-        }
-        return super.visitAnnotation(descriptor, visible);
-    }
 
     @Override
     public void visitEnd() {

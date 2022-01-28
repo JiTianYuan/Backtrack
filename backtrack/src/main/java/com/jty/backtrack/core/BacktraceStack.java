@@ -92,6 +92,7 @@ class BacktraceStack implements FrameMonitor.FrameObserver {
         } else {
             if (mCurMode == RecordMode.BOOT_MODE) {
                 //结束启动记录模式，dump堆栈
+                record(0, StatusSpec.STATUS_FORCE_DUMP);
                 dump(System.nanoTime() - mStartUpTime);
                 mMaybeHaveDirtyData = true;
             }

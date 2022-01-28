@@ -20,12 +20,14 @@ class OutputTemplate {
     // $方法id$,$时间(微秒)$,$进栈出栈（B或者E）$
     static String buildData(int methodId, long timeMicroseconds, long status) {
         String flag = "";
-        if (StatusSpec.STATUS_IN == status){
+        if (StatusSpec.STATUS_IN == status) {
             flag = "B";
         } else if (StatusSpec.STATUS_OUT == status) {
             flag = "E";
-        }else if (StatusSpec.STATUS_EXCEPTION == status){
+        } else if (StatusSpec.STATUS_EXCEPTION == status) {
             flag = "T";
+        } else if (StatusSpec.STATUS_FORCE_DUMP == status) {
+            flag = "F";
         }
         return methodId + "," + timeMicroseconds + "," + flag;
     }

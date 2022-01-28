@@ -14,6 +14,9 @@ public class TraceRecordItem {
     //栈因为未知异常导致没有end
     public static final int STACK_STATUS_UNKNOWN_EXCEPTION = 2;
 
+    //栈因为强制导出导致丢失了end
+    public static final int STACK_STATUS_FORCE_DUMP = 3;
+
     public int methodId;
 
     public long timeMicroseconds;

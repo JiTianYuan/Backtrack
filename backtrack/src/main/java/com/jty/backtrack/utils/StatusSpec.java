@@ -26,6 +26,11 @@ public class StatusSpec {
      */
     public static final long STATUS_EXCEPTION = 2L << FLAG_SHIFT;
 
+    /**
+     * 强制dump，会导致丢失end，所以加这个标签方便补全end
+     */
+    public static final long STATUS_FORCE_DUMP = 3L << FLAG_SHIFT;
+
 
     public static long getStatus(long statusSpec) {
         return (statusSpec & FLAG_MASK);

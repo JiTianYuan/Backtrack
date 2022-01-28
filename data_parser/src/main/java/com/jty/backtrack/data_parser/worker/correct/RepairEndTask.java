@@ -21,7 +21,6 @@ class RepairEndTask extends BaseCorrectTask {
         //printDataAsStack(data);
         //System.out.println("=========================================");
         Stack<TraceRecordItem> stack = new Stack<>();
-        TraceRecordItem lastPopStack = null;
         for (int i = 0; i < data.size(); i++) {
             TraceRecordItem item = data.get(i);
             if (item.status.equals("B")) {
@@ -41,10 +40,21 @@ class RepairEndTask extends BaseCorrectTask {
                             addItem.stackStatus = TraceRecordItem.STACK_STATUS_UNKNOWN_EXCEPTION;
                             data.add(i + 1, addItem);
                             i++;
-                            lastPopStack = stack.pop();
+                            stack.pop();
                         }
                     }
-                    lastPopStack = stack.pop();
+                    stack.pop();
+                }
+            } else if (item.status.equals("F")){
+                //遇到了 "强制结束" 的标记
+                while (!stack.empty()){
+                    //构建需要补上的item
+                    TraceRecordItem loseEndItem = stack.pop();
+                    TraceRecordItem addItem = new TraceRecordItem(loseEndItem.methodId, item.timeMicroseconds, "E");
+                    loseEndItem.stackStatus = TraceRecordItem.STACK_STATUS_FORCE_DUMP;
+                    addItem.stackStatus = TraceRecordItem.STACK_STATUS_FORCE_DUMP;
+                    data.add(i + 1, addItem);
+                    i++;
                 }
             }
         }

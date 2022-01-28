@@ -150,6 +150,8 @@ class TraceConverter {
                         methodName = "(E)" + methodName;
                     } else if (recordItem.stackStatus == TraceRecordItem.STACK_STATUS_UNKNOWN_EXCEPTION) {
                         methodName = "(?)" + methodName;
+                    } else if (recordItem.stackStatus == TraceRecordItem.STACK_STATUS_FORCE_DUMP) {
+                        methodName = "(F)" + methodName;
                     }
                     double timeSecond = recordItem.timeMicroseconds / 1000000d;
                     //输出格式：<包名-线程id>  ( <线程id>) [000] .... <时间>: tracing_mark_write: <B或者E>|<进程ID>|<TAG>

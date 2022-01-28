@@ -11,13 +11,19 @@ import java.util.List;
  *
  * 移除T事件
  */
-class RemoveTTask extends BaseCorrectTask{
+class RemoveTargetTask extends BaseCorrectTask{
+    private String mTarget;
+
+    public RemoveTargetTask(String target) {
+        mTarget = target;
+    }
+
     @Override
     protected void run(List<TraceRecordItem> data) {
         Iterator<TraceRecordItem> iterator = data.iterator();
         while (iterator.hasNext()){
             TraceRecordItem item = iterator.next();
-            if (item.status.equals("T")){
+            if (item.status.equals(mTarget)){
                 iterator.remove();
             }
         }

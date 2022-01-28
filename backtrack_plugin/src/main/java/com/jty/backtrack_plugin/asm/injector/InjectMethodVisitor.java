@@ -23,7 +23,6 @@ class InjectMethodVisitor extends AdviceAdapter {
     private String methodName;
     private final MethodItem mMethodItem;
     private HashSet<Label> mTryCatchLabels = new HashSet<>();
-    private boolean mHasBootEndTag = false;
 
     /**
      * Constructs a new {@link AdviceAdapter}.
@@ -63,10 +62,6 @@ class InjectMethodVisitor extends AdviceAdapter {
             mv.visitLdcInsn(mMethodItem.id);
             mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_TRACE_OUT, "(I)V", false);
         }
-        //启动耗时检测结束
-        if (mHasBootEndTag) {
-            mv.visitMethodInsn(INVOKESTATIC, ASMConfig.METHOD_TRACE_CLASS, ASMConfig.METHOD_BOOT_END, "()V", false);
-        }
     }
 
     @Override
@@ -75,13 +70,6 @@ class InjectMethodVisitor extends AdviceAdapter {
         super.visitTryCatchBlock(start, end, handler, type);
     }
 
-    @Override
-    public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-        if (descriptor.contains(ASMConfig.ANNOTATION_BOOT_END_TAG)) {
-            mHasBootEndTag = true;
-        }
-        return super.visitAnnotation(descriptor, visible);
-    }
 
     @Override
     public void visitLabel(Label label) {
@@ -94,9 +82,9 @@ class InjectMethodVisitor extends AdviceAdapter {
     }
 
     private void injectRuntimeConfig() {
-        mv.visitLdcInsn(ASMConfig.sHasBootEndTag);
-        mv.visitMethodInsn(INVOKESTATIC, ASMConfig.CLASS_RUNTIME_CONFIG, "setHasBootEndTag", "(Z)V", false);
-        System.out.println("[Backtrack]injectRuntimeConfig：sHasBootEndTag = " + ASMConfig.sHasBootEndTag);
+//        mv.visitLdcInsn(ASMConfig.sHasBootEndTag);
+//        mv.visitMethodInsn(INVOKESTATIC, ASMConfig.CLASS_RUNTIME_CONFIG, "setHasBootEndTag", "(Z)V", false);
+//        System.out.println("[Backtrack]injectRuntimeConfig：sHasBootEndTag = " + ASMConfig.sHasBootEndTag);
     }
 
 }

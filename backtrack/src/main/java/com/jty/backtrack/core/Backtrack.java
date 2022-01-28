@@ -69,11 +69,7 @@ public class Backtrack implements BacktrackContext {
         FrameMonitor.getInstance().addFrameObserver(mBacktraceStack);
         mOutputProcessor = new OutputProcessorImpl(this);
         if (mConfig.isRecordStartUp()) {
-            if (BacktrackRuntimeConfig.isHasBootEndTag()) {
-                mBacktraceStack.setMode(RecordMode.BOOT_MODE);
-            } else {
-                throw new RuntimeException("recordStartUp 模式必须配合 @BootEndTag 注解使用！");
-            }
+            mBacktraceStack.setMode(RecordMode.BOOT_MODE);
         }
     }
 
@@ -131,19 +127,15 @@ public class Backtrack implements BacktrackContext {
 
     /**
      * 启动耗时检测结束
-     * 不要主动调用，由ASM插桩调用（为了保证堆栈完整性，需要将调用插桩到方法end记录之后）
      */
-    public static void bootEnd() {
-        if (mInstance == null || mInstance.mBacktraceStack == null) {
-            return;
-        }
+    public void recordStartUpEnd(){
         if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
-            throw new RuntimeException("@BootEndTag 标记的方法必须运行在主线程！");
+            throw new RuntimeException("recordStartUpEnd 的调用必须在主线程！！！");
         }
         if (DEBUG) {
-            Log.i(TAG, "bootEnd!!!!");
+            Log.i(TAG, "recordStartUpEnd !!!!");
         }
-        mInstance.mBacktraceStack.setMode(RecordMode.JANK_MODE);
+        mBacktraceStack.setMode(RecordMode.JANK_MODE);
     }
 
 
