@@ -1,18 +1,18 @@
 apply plugin: 'java-library'
-apply plugin: 'maven'
+apply plugin: 'com.github.dcendents.android-maven'
 
-
-group = 'com.jty.plugin'
-version = '1.0.0'
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            //repository(url: uri('../repo'))
-            repository(url: uri('/Users/jty/Develop/Android/repo'))
-        }
-    }
-}
+//apply plugin: 'maven'
+//group = 'com.jty.plugin'
+//version = '1.0.0'
+//
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            //repository(url: uri('../repo'))
+//            repository(url: uri('/Users/jty/Develop/Android/repo'))
+//        }
+//    }
+//}
 
 dependencies {
     implementation gradleApi()
