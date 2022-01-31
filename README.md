@@ -52,7 +52,8 @@ backtrack {
 -keepMethod com.jty.backtrack_demo.MyApplication.attachBaseContext
 ```
 #### 5、启动耗时分析功能
-如果需要分析启动耗时，可以在Backtrack初始化时配置`recordStartUp(true)` ，并且在启动流程结束的地方调用`Backtrack.getInstance().recordStartUpEnd()`
+如果需要分析启动耗时，可以在Backtrack初始化时配置`recordStartUp(true)` ，并且在启动流程结束的地方调用`Backtrack.getInstance().recordStartUpEnd()`。
+
 **注:**
 1. 如果设置了`recordStartUp(true)`，就必须调用`Backtrack.getInstance().recordStartUpEnd()`，否则会不停的记录堆栈信息导致内存溢出
 2. `Backtrack.getInstance().recordStartUpEnd()`必须在主线程调用
