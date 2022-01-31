@@ -1,58 +1,95 @@
 # Backtrack
 
-### 插桩
-方法名映射id存储到mapping文件
-编译期将mapping文件保存到assert目录下
-适配插件化：不同的插件有不同的mapping，方法id冲突问题，mapping合并问题
-idea1：mapping不合并，所有插件下的mapping文件都存入文件夹。导出时将整个文件夹导出，然后统一处理
-    以后可以线上使用，上线时mapping不放到assets目录下
-
-idea2：数据存储时，直接读取mapping，存储真实的类名信息
-    不适合未来线上使用
-
-### 采集数据
-
-### 丢弃数据
-
-### 保存数据
-
-### 帧监控
-
-### 回溯栈数据结构：
-数组储存，有一个初始长度，长度不足就扩容
-数组有两个，一个数组记录出入栈+时间，另一个数组记录方法id：
-数组1：long类型，64位，第一位表示入栈还是出栈，后63位表示时间（精确到微秒）
-数组2：int类型，保存方法id
-所以，一个方法入栈占用96位，12字节。
-假设：初始化栈深度1024，占用12kb
-
-问题：初始化栈深度多少合适？
-需要计算一帧大概会有多少的深度。然后考虑到丢帧和ANR的情况，计算一下5秒需要多少深度
-
-
-### 线程问题：只记录主线程，其他线程不记录。
-
-### 数据的可视化
-借用google的Perfetto工具，生成的数据按照规则去写，就可以生成可以被Perfetto识别的文件
-生成一条最简易的方法执行开始和结束的记录，格式如下：
-```
-<包名-线程id>  ( <线程id>) [000] .... <时间>: tracing_mark_write: <B或者E>|<进程ID>|<TAG>
-```
-记录VSYNC信号：（0和1来回切换）
-```
-<包名-线程id>  ( <线程id>) [000] .... <时间>: tracing_mark_write: C|<进程ID>|VSYNC-app|0
-```
-
-
-
 ## 接入
+#### 1、project的build.gradle配置
+仓库配置：
+```
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+```
+dependencies增加plugin依赖：
+```
+dependencies {
+    classpath 'com.github.JiTianYuan.Backtrack:backtrack_plugin:v1.0.0'
+}
+```
+#### 2、app的build.gradle配置
+添加插件：
+```
+apply plugin: 'com.jty.backtrack'
+```
+添加依赖：
+```
+dependencies {
+    implementation 'com.github.JiTianYuan.Backtrack:backtrack:v1.0.0'
+}
+```
 
-引入aar
+支持的配置项：
+```
+backtrack {
+    methodIdStart = "0x01"      //生成的方法id的起始值，配合插件化使用
+    whiteListFile = "backtrack-whitelist.txt"   //配置插桩白名单
+}
+```
 
-代码混淆配置：
+#### 3、代码混淆配置：
+```
 -keep class com.jty.backtrack.core.Backtrack{*;}
+```
 
+#### 4、插桩白名单配置
+```
+# 类的白名单
+-keepClass com.jty.backtrack_demo.MyApplication
 
-初始化：
+# 包的白名单
+-keepPackage android.*
+-keepPackage androidx.*
 
+# 方法白名单
+-keepMethod com.jty.backtrack_demo.MyApplication.attachBaseContext
+```
+#### 5、启动耗时分析功能
+如果需要分析启动耗时，可以在Backtrack初始化时配置`recordStartUp(true)` ，并且在启动流程结束的地方调用`Backtrack.getInstance().recordStartUpEnd()`
+**注:**
+1. 如果设置了`recordStartUp(true)`，就必须调用`Backtrack.getInstance().recordStartUpEnd()`，否则会不停的记录堆栈信息导致内存溢出
+2. `Backtrack.getInstance().recordStartUpEnd()`必须在主线程调用
+
+## 使用
+
+#### Step1：初始化（越早越好）：
+``` java
+Config config = new Config.Builder()
+        .debuggable(true)   // debug模式下会打印log，过滤”Backtrack“
+        .outputDir(SDCARD.getStorageDir() + PATH.FOLDER_NAME + File.separator + "Backtrace")  //输出文件夹
+        .jankFrameThreshold(10)  // 丢帧阈值，当连续丢帧达n帧时，保存卡顿信息。默认值10
+        .recordStartUp(false)   //是否开启启动耗时分析，需要配合 Backtrack.getInstance().recordStartUpEnd() 使用
+        .initialStackSize(1024 * 1024)  //初始化栈大小，一个栈占用12字节，默认大小1024*1024(12M)
+        .build();
+Backtrack.init(context, config);
+```
+#### Step2：执行打包，生成mapping文件
+会在build/outputs/mapping下生成methodMapping.txt 和 ignoreMethodMapping.txt文件
+methodMapping.txt保存着插桩方法的方法id和方法名的映射
+ignoreMethodMapping.txt是被过滤的未插桩的方法
+
+#### Step3：正常使用app，当连续丢帧满足配置条件时，会自动保存信息
+
+#### Step4：从配置的输出路径中取出.backtrace文件
+
+#### Step5：使用解析工具分析文件
+解析工具是data_parser 这个module，直接运行Main.java或者使用build出来的jar包都可以
+解析工具中分别填入methodMapping.txt所在的文件夹、.backtrace所在的文件夹、输出文件夹。点击GO生成.systrace格式的文件
+
+#### Step6：使用perfetto查看systrace文件
+使用Chrome浏览器打开网址：https://ui.perfetto.dev/#!/
+将.systrace文件拖进去即可
+
+**注:**
+> 运行时异常会导致方法有begin无end，从而引起`"Did Not Finished"`问题，导致堆栈信息不准确。为了解决这个问题，我们试图对堆栈信息进行还原，并添加了标记:
+> * 方法前有(E)标记，表示当前方法发生了异常，被外层方法try-catch住了，方法的end时间为catch的时间
+> * 方法前有(?)标记，表示当前方法没有end的原因未知，我们尝试对它进行了修补，但结果不一定正确(堆栈层级和嵌套关系可能不对)
+> * 方法前有(F)标记，表示当前堆栈被强制dump，丢失end事件，这种情况目前发生在启动耗时分析场景，用户主动调用了`Backtrack.getInstance().recordStartUpEnd()`
 

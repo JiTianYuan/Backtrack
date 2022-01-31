@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'com.jty.backtrack'
+apply plugin: 'com.jty.backtrack'
 
 
 android {
@@ -25,14 +25,15 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-//    backtrack {
-//        methodIdStart = "0x00"
-//        whiteListFile = "backtrack-whitelist.txt"
-//    }
+    backtrack {
+        methodIdStart = "0x00"
+        whiteListFile = "backtrack-whitelist.txt"
+    }
 }
 
 dependencies {
-    api project(path: ':backtrack')
+//    api project(path: ':backtrack')
+    implementation 'com.github.JiTianYuan.Backtrack:backtrack:v1.0.0'
 }
 
 gradle.taskGraph.whenReady {
