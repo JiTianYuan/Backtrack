@@ -25,23 +25,25 @@ public class ParserWorker {
             public void run() {
                 Result result = parse(mappingDir, traceDir, outDir);
                 //切换到UI线程更新UI
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (result.success) {
-                            listener.onSuccess();
-                        } else {
-                            listener.onError(result.msg);
-                        }
+                if (listener != null) {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (result.success) {
+                                listener.onSuccess();
+                            } else {
+                                listener.onError(result.msg);
+                            }
 
-                    }
-                });
+                        }
+                    });
+                }
             }
         });
     }
 
 
-    private Result parse(String mappingDir, String traceDir, String outDir) {
+    public Result parse(String mappingDir, String traceDir, String outDir) {
         //加载mapping文件
         MappingReader mappingReader = new MappingReader();
         HashMap<Integer, String> mapping = mappingReader.loadMapping(mappingDir);

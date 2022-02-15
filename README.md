@@ -87,8 +87,9 @@ ignoreMethodMapping.txt是被过滤的未插桩的方法
 #### Step4：从配置的输出路径中取出.backtrace文件
 
 #### Step5：使用解析工具分析文件
-解析工具是data_parser 这个module，直接运行Main.java或者使用build出来的jar包都可以
+解析工具是data_parser 这个module，直接运行Main.java（需要javaFx环境）或者使用releaseJar目录下的jar包都可以
 解析工具中分别填入methodMapping.txt所在的文件夹、.backtrace所在的文件夹、输出文件夹。点击GO生成.systrace格式的文件
+> 如果jar包打不开，可以运行`com.jty.backtrack.data_parser.TestMain`，代码中输入参数
 
 #### Step6：使用perfetto查看systrace文件
 使用Chrome浏览器打开网址：https://ui.perfetto.dev/#!/
