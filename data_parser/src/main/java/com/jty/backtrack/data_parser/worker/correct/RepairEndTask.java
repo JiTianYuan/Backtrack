@@ -28,7 +28,12 @@ class RepairEndTask extends BaseCorrectTask {
                 stack.push(item);
             } else if (item.status.equals("E")) {
                 //出栈
-                TraceRecordItem peek = stack.peek();
+                TraceRecordItem peek = null;
+                if (!stack.empty()) {
+                    peek = stack.peek();
+                } else {
+                    System.out.println("[Error!!!] item还没有入栈，缺少B事件，item = " + item);
+                }
                 if (peek != null) {
                     if (peek.methodId != item.methodId) {
                         //当前栈顶缺失end事件
@@ -45,9 +50,9 @@ class RepairEndTask extends BaseCorrectTask {
                     }
                     stack.pop();
                 }
-            } else if (item.status.equals("F")){
+            } else if (item.status.equals("F")) {
                 //遇到了 "强制结束" 的标记
-                while (!stack.empty()){
+                while (!stack.empty()) {
                     //构建需要补上的item
                     TraceRecordItem loseEndItem = stack.pop();
                     TraceRecordItem addItem = new TraceRecordItem(loseEndItem.methodId, item.timeMicroseconds, "E");
