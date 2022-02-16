@@ -61,7 +61,7 @@ public class Config {
     public static class Builder {
 
         private String outputDir = "";
-        private int jankFrameThreshold = 1;
+        private int jankFrameThreshold = 10;
         private int initialStackSize = BacktraceStack.DEFAULT_STACK_SIZE;
         private boolean debuggable = false;
         private boolean recordStartUp = false;
