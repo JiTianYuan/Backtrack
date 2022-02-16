@@ -31,7 +31,7 @@ public class MyApplication extends Application {
                 .jankFrameThreshold(1)
                 //.outputDir(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Backtrace")
                 .outputDir(base.getFilesDir().getAbsolutePath() + File.separator + "Backtrace")
-                .recordStartUp(false)
+                .recordStartUp(true)
                 .build();
         Backtrack.init(base, config);
         super.attachBaseContext(base);
