@@ -101,3 +101,5 @@ ignoreMethodMapping.txt是被过滤的未插桩的方法
 > * 方法前有(?)标记，表示当前方法没有end的原因未知，我们尝试对它进行了修补，但结果不一定正确(堆栈层级和嵌套关系可能不对)
 > * 方法前有(F)标记，表示当前堆栈被强制dump，丢失end事件，这种情况目前发生在启动耗时分析场景，用户主动调用了`Backtrack.getInstance().recordStartUpEnd()`
 
+##### 效果图如下所示：
+![perfetto_example](https://github.com/JiTianYuan/Backtrack/raw/master/doc/perfetto_example.png)
